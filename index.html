@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Production Meta Tags -->
+    <title>WebBox - 100% Güvenli ve Tamamen Ücretsiz Dosya &amp; Medya Araç Kutusu</title>
+    <meta name="description" content="WebBox, PDF birleştirme, görsel düzenleme, video ses çıkartma, belge çeviri ve filigran ekleme araçlarını sunucu yüklemeden tamamen cihazınızda çalıştırır." />
+    <meta name="keywords" content="pdf birleştirme, resim dönüştürücü, ses çıkarma, belge çeviri, filigran ekleme, pdf araçları, ücretsiz araçlar, çevrimdışı, webbox" />
+    <meta name="author" content="WebBox" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- PWA / Mobile Capabilities -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="WebBox" />
+    <link rel="apple-touch-icon" href="/logo.jpg" />
+    
+    <!-- Favicon link -->
+    <link rel="icon" type="image/jpeg" href="/logo.jpg" />
+    
+    <!-- Web App Manifest -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#171717" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://webbox.tools/" />
+    <meta property="og:title" content="WebBox - 100% Güvenli Belge ve Medya Araç Kutusu" />
+    <meta property="og:description" content="Dosyalarınız hiçbir sunucuya yüklenmez. Tüm işlemler doğrudan tarayıcınızda ve tamamen ücretsiz gerçekleşir." />
+    <meta property="og:image" content="/logo.jpg" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary" />
+    <meta property="twitter:title" content="WebBox - 100% Güvenli Çevrimdışı Araçlar" />
+    <meta property="twitter:description" content="Dosyalarınız tarayıcınızdan asla ayrılmaz. Hızlı, güvenli ve ücretsiz." />
+
+    <!-- Service Worker registration for offline support -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js').then((reg) => {
+            console.log('WebBox ServiceWorker registered successfully!');
+          }).catch((err) => {
+            console.log('WebBox ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    </script>
+
+    <!-- Structured Data JSON-LD for Google Rich Snippets -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "WebBox",
+        "url": "https://webbox.tools",
+        "description": "Premium client-side serverless document, PDF, and media utility toolbox running safely inside browser sandbox.",
+        "applicationCategory": "Utility",
+        "operatingSystem": "All",
+        "browserRequirements": "Requires HTML5, WebAssembly, SharedArrayBuffer",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        }
+      }
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

@@ -1,0 +1,6 @@
+{
+  "name": "Ultimate Web File and Media Toolbox",
+  "description": "A 100% secure, offline-first client-side toolset for PDF merging, document translation, image batch resizing, watermark creation, audio extraction, and media converter.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
