@@ -409,7 +409,7 @@ export default function AudioExtractor({ currentLanguage }: AudioExtractorProps)
         <div className="space-y-4">
           <h3 className="text-base font-bold text-neutral-900">%100 Güvenli Videodan Ses Çıkarma ve MP3/WAV Çözümü</h3>
           <p className="text-xs text-neutral-500 leading-relaxed">
-            Telefonunuzla çektiğiniz videoları, seminer kayıtlarını veya ders dinletilerini MP3/WAV formatına dönüştürmek için üçüncü parti sunucu bazlı web sitelerine göndermek, kişisel ses kopyalarınızın başkaları tarafından saklanması riskini taşır. WebBox Video Ses Ayıklayıcı, tarayıcınızın dahili <span className="font-semibold text-neutral-800">Web Audio API</span> kod çözücülerini (decoder) kullanarak ses frekanslarını saniyeler içinde doğrudan cihazınızda ayrıştırıp temiz kalitede WAV belgesi haline getirir.
+            Telefonunuzla çektiğiniz videoları, seminer kayıtlarını veya ders dinletilerini MP3/WAV formatına dönüştürmek için üçüncü parti sunucu bazlı web sitelerine göndermek, kişisel ses kopyalarınızın başkaları tarafından saklanması riskini taşır. WeBox Video Ses Ayıklayıcı, tarayıcınızın dahili <span className="font-semibold text-neutral-800">Web Audio API</span> kod çözücülerini (decoder) kullanarak ses frekanslarını saniyeler içinde doğrudan cihazınızda ayrıştırıp temiz kalitede WAV belgesi haline getirir.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
             <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-100 space-y-1">

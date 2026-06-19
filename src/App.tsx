@@ -33,7 +33,7 @@ import WatermarkAdder from './components/WatermarkAdder';
 
 export default function App() {
   const [currentLanguage, setCurrentLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('webbox_lang');
+    const saved = localStorage.getItem('webox_lang') || localStorage.getItem('webbox_lang');
     return (saved as Language) || 'TR';
   });
 
@@ -41,7 +41,7 @@ export default function App() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   useEffect(() => {
-    localStorage.setItem('webbox_lang', currentLanguage);
+    localStorage.setItem('webox_lang', currentLanguage);
   }, [currentLanguage]);
 
   const t: TranslationSet = TRANSLATIONS[currentLanguage];

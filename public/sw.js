@@ -1,4 +1,4 @@
-const CACHE_NAME = 'webbox-cache-v1';
+const CACHE_NAME = 'webox-cache-v1';
 const ASSETS = [
   '/',
   '/index.html',

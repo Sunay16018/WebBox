@@ -153,6 +153,66 @@ const vocabDict: Record<string, Record<string, string>> = {
     "secure": "säker", "tool": "verktyg", "media": "media", "translation": "översättning", "day": "dag",
     "entry": "ingång", "exit": "utgång", "yes": "ja", "no": "nej", "save": "spara",
     "system": "system", "error": "fel", "successful": "lyckad", "and": "och", "a": "en"
+  },
+  EL: {
+    "hello": "γεια", "friend": "φίλος", "world": "κόσμος", "computer": "υπολογιστής", "file": "αρχείο",
+    "secure": "ασφαλής", "tool": "εργαλείο", "media": "μέσα", "translation": "μετάφραση", "day": "ημέρα",
+    "entry": "είσοδος", "exit": "έξοδος", "yes": "ναι", "no": "όχι", "save": "αποθήκευση",
+    "system": "σύστημα", "error": "σφάλμα", "successful": "επιτυχής", "and": "και", "a": "ένα"
+  },
+  RO: {
+    "hello": "salut", "friend": "prieten", "world": "lume", "computer": "calculator", "file": "fisier",
+    "secure": "securizat", "tool": "instrument", "media": "media", "translation": "traducere", "day": "zi",
+    "entry": "intrare", "exit": "iesire", "yes": "da", "no": "nu", "save": "salvare",
+    "system": "sistem", "error": "eroare", "successful": "reusit", "and": "si", "a": "un"
+  },
+  BG: {
+    "hello": "здравей", "friend": "приятел", "world": "свят", "computer": "компютър", "file": "файл",
+    "secure": "сигурен", "tool": "инструмент", "media": "медия", "translation": "превод", "day": "ден",
+    "entry": "вход", "exit": "изход", "yes": "да", "no": "не", "save": "запази",
+    "system": "система", "error": "грешка", "successful": "успешен", "and": "и", "a": "един"
+  },
+  CS: {
+    "hello": "ahoj", "friend": "přítel", "world": "svět", "computer": "počítač", "file": "soubor",
+    "secure": "zabezpečený", "tool": "nástroj", "media": "média", "translation": "překlad", "day": "den",
+    "entry": "vstup", "exit": "výstup", "yes": "ano", "no": "ne", "save": "uložit",
+    "system": "systém", "error": "chyba", "successful": "úspěšný", "and": "a", "a": "jeden"
+  },
+  DA: {
+    "hello": "hej", "friend": "ven", "world": "verden", "computer": "computer", "file": "fil",
+    "secure": "sikker", "tool": "værktøj", "media": "medier", "translation": "oversættelse", "day": "dag",
+    "entry": "indgang", "exit": "udgang", "yes": "ja", "no": "nej", "save": "gem",
+    "system": "system", "error": "fejl", "successful": "vellykket", "and": "og", "a": "en"
+  },
+  FI: {
+    "hello": "hei", "friend": "ystävä", "world": "maailma", "computer": "tietokone", "file": "tiedosto",
+    "secure": "suojattu", "tool": "työkalu", "media": "media", "translation": "käännös", "day": "päivä",
+    "entry": "sisäänpääsy", "exit": "uloskäynti", "yes": "kyllä", "no": "ei", "save": "tallenna",
+    "system": "järjestelmä", "error": "virhe", "successful": "onnistunut", "and": "ja", "a": "yksi"
+  },
+  NO: {
+    "hello": "hei", "friend": "venn", "world": "verden", "computer": "datamaskin", "file": "fil",
+    "secure": "sikker", "tool": "verktøy", "media": "medier", "translation": "oversettelse", "day": "dag",
+    "entry": "inngang", "exit": "utgang", "yes": "ja", "no": "nei", "save": "lagre",
+    "system": "system", "error": "fejl", "successful": "vellykket", "and": "og", "a": "en"
+  },
+  FA: {
+    "hello": "سلام", "friend": "دوست", "world": "جهان", "computer": "رایانه", "file": "فایل",
+    "secure": "امن", "tool": "ابزار", "media": "رسانه", "translation": "ترجمه", "day": "روز",
+    "entry": "ورود", "exit": "خروج", "yes": "بله", "no": "خیر", "save": "ذخیره",
+    "system": "سیستم", "error": "خطا", "successful": "موفق", "and": "و", "a": "یک"
+  },
+  HE: {
+    "hello": "שלום", "friend": "חבר", "world": "עולם", "computer": "מחשב", "file": "קובץ",
+    "secure": "מאובטח", "tool": "כלי", "media": "מדיה", "translation": "תרגום", "day": "יום",
+    "entry": "כניסה", "exit": "יציאה", "yes": "כן", "no": "לא", "save": "שמור",
+    "system": "מערכת", "error": "שגיאה", "successful": "מוצלח", "and": "ו", "a": "אחד"
+  },
+  UR: {
+    "hello": "ہیلو", "friend": "دوست", "world": "دنیا", "computer": "کمپیوٹر", "file": "فائل",
+    "secure": "محفوظ", "tool": "ٹول", "media": "میڈیا", "translation": "ترجمہ", "day": "دن",
+    "entry": "داخلہ", "exit": "خروج", "yes": "ہاں", "no": "نہیں", "save": "محفوظ کریں",
+    "system": "سسٹم", "error": "غلطی", "successful": "کامیاب", "and": "اور", "a": "ایک"
   }
 };
 
@@ -302,7 +362,7 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
 
         const footerNote = currentLanguage === 'TR'
           ? `\n\n/* 🔐 %100 Yerel Tarayıcı Katmanında Çevrilmiştir - Güvenli Sandbox Belge Koruması */`
-          : `\n\n/* 🔐 Translated 100% locally on WebBox Secure Sandbox layer */`;
+          : `\n\n/* 🔐 Translated 100% locally on WeBox Secure Sandbox layer */`;
 
         setTranslatedContent(result + (fileExt === '.txt' || fileExt === '.srt' ? footerNote : ''));
         setIsCompleted(true);

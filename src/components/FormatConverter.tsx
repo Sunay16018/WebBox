@@ -212,7 +212,7 @@ export default function FormatConverter({ currentLanguage }: FormatConverterProp
         const text = await fcFile.text().catch(() => '');
         const sampleText = text ? text.substring(0, 1000) : 'Binary stream data (Secured Block)';
         const infoString = `--------------------------------------------------\n` +
-                           `WEBBOX CLIENT-SIDE SANDBOX CONVERSION REPORT\n` +
+                           `WEBOX CLIENT-SIDE SANDBOX CONVERSION REPORT\n` +
                            `--------------------------------------------------\n` +
                            `* File Name: ${fcFile.name}\n` +
                            `* Source File Format: ${srcExt}\n` +

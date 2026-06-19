@@ -55,7 +55,7 @@ export default function Header({
           >
             <img 
               src="/logo.jpg" 
-              alt="WebBox Logo" 
+              alt="WeBox Logo" 
               className="w-10 h-10 rounded-xl object-cover border border-neutral-100 group-hover:scale-105 transition-transform shadow-sm flex-shrink-0"
               referrerPolicy="no-referrer"
             />
@@ -128,7 +128,7 @@ export default function Header({
                 <div className="flex items-center gap-2">
                   <img 
                     src="/logo.jpg" 
-                    alt="WebBox Logo" 
+                    alt="WeBox Logo" 
                     className="w-7 h-7 rounded-lg object-cover border border-neutral-100"
                     referrerPolicy="no-referrer"
                   />

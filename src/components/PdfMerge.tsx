@@ -327,7 +327,7 @@ export default function PdfMerge({ currentLanguage }: PdfMergeProps) {
         <div className="space-y-4">
           <h3 className="text-base font-bold text-neutral-900">%100 Güvenli PDF Birleştirme ve Manipülasyon Rehberi</h3>
           <p className="text-xs text-neutral-500 leading-relaxed">
-            Şirket içi bütçeler, vergi beyannameleri, nüfus cüzdanı dökümleri ve hassas ticari anlaşmalar gibi gizlilik ihtiva eden PDF belgelerini sıradan online araçlara yüklemek büyük bir güvenlik tehdididir. WebBox PDF Birleştirici, PDF sayfalarının binary akışlarını tarayıcınız içindeki <span className="font-semibold text-neutral-850">pdf-lib</span> sanal motoruyla çözümleyerek tamamen cihazınızın RAM’inde bir araya getirir.
+            Şirket içi bütçeler, vergi beyannameleri, nüfus cüzdanı dökümleri ve hassas ticari anlaşmalar gibi gizlilik ihtiva eden PDF belgelerini sıradan online araçlara yüklemek büyük bir güvenlik tehdididir. WeBox PDF Birleştirici, PDF sayfalarının binary akışlarını tarayıcınız içindeki <span className="font-semibold text-neutral-850">pdf-lib</span> sanal motoruyla çözümleyerek tamamen cihazınızın RAM’inde bir araya getirir.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-1">
             <div className="p-4 bg-neutral-50 rounded-xl border border-neutral-100 space-y-1">

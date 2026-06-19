@@ -83,7 +83,7 @@ export default function PdfMeta({ currentLanguage }: PdfMetaProps) {
       pdfDoc.setKeywords(keywords.split(',').map(s => s.trim()).filter(Boolean));
 
       // Standardize metadata indicators
-      pdfDoc.setCreator('WebBox Client-Side PDF Securer Engine');
+      pdfDoc.setCreator('WeBox Client-Side PDF Securer Engine');
       pdfDoc.setProducer('Ultimate Web File and Media Toolbox');
 
       const savedBytes = await pdfDoc.save();
