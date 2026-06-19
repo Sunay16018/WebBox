@@ -30,6 +30,7 @@ import AudioExtractor from './components/AudioExtractor';
 import MediaCutter from './components/MediaCutter';
 import BatchResizer from './components/BatchResizer';
 import WatermarkAdder from './components/WatermarkAdder';
+import InfoPages from './components/InfoPages';
 
 export default function App() {
   const [currentLanguage, setCurrentLanguage] = useState<Language>(() => {
@@ -38,11 +39,34 @@ export default function App() {
   });
 
   const [activeToolId, setActiveToolId] = useState<string | null>(null);
+  const [activePath, setActivePath] = useState<string | null>(() => {
+    const p = window.location.pathname;
+    const infoPaths = ['/hakkimizda', '/iletisim', '/gizlilik-politikasi', '/kullanim-sartlari', '/cerez-politikasi', '/sss', '/topluluk-kurallari', '/site-haritasi'];
+    return infoPaths.includes(p) ? p : null;
+  });
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
   useEffect(() => {
     localStorage.setItem('webox_lang', currentLanguage);
   }, [currentLanguage]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      const p = window.location.pathname;
+      const infoPaths = ['/hakkimizda', '/iletisim', '/gizlilik-politikasi', '/kullanim-sartlari', '/cerez-politikasi', '/sss', '/topluluk-kurallari', '/site-haritasi'];
+      if (infoPaths.includes(p)) {
+        setActivePath(p);
+        setActiveToolId(null);
+      } else {
+        setActivePath(null);
+        const params = new URLSearchParams(window.location.search);
+        const tool = params.get('tool');
+        setActiveToolId(tool);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
 
   const t: TranslationSet = TRANSLATIONS[currentLanguage];
 
@@ -50,9 +74,25 @@ export default function App() {
     setCurrentLanguage(lang);
   };
 
-  const handleSelectTool = (id: string | null) => {
-    setActiveToolId(id);
+  const handleNavigate = (path: string | null) => {
+    if (path === null) {
+      window.history.pushState({}, '', '/');
+      setActivePath(null);
+      setActiveToolId(null);
+    } else if (path.startsWith('/')) {
+      window.history.pushState({}, '', path);
+      setActivePath(path);
+      setActiveToolId(null);
+    } else {
+      window.history.pushState({}, '', `/?tool=${path}`);
+      setActivePath(null);
+      setActiveToolId(path);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSelectTool = (id: string | null) => {
+    handleNavigate(id);
   };
 
   // Maps custom tool ID back to respective React component
@@ -111,7 +151,21 @@ export default function App() {
       {/* Main Container Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-10">
         <AnimatePresence mode="wait">
-          {activeToolId === null ? (
+          {activePath !== null ? (
+            <motion.div
+              key={activePath}
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+            >
+              <InfoPages 
+                pagePath={activePath} 
+                onNavigate={handleNavigate} 
+                currentLanguage={currentLanguage} 
+              />
+            </motion.div>
+          ) : activeToolId === null ? (
             
             /* LANDING PAGE VIEW */
             <motion.div
@@ -264,27 +318,90 @@ export default function App() {
         </AnimatePresence>
       </main>
 
-      {/* Global minimal footer with clean lines */}
-      <footer className="bg-white border-t border-neutral-100 py-10 mt-20 select-none">
-        <div className="max-w-7xl w-full mx-auto px-4 sm:px-8 flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-neutral-400 font-sans">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-neutral-900 text-white flex items-center justify-center font-bold text-[10px]">
-              W
+      {/* Global minimal footer with clean lines and AdSense-compliant pages */}
+      <footer className="bg-white border-t border-neutral-100 py-12 mt-20 select-none">
+        <div className="max-w-7xl w-full mx-auto px-4 sm:px-8 space-y-8">
+          
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 border-b border-neutral-100 pb-8 text-neutral-500">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-neutral-900 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                W
+              </div>
+              <div>
+                <span className="font-extrabold text-neutral-900 tracking-tight font-sans text-sm block">
+                  {t.brand} Tools
+                </span>
+                <span className="text-[10px] text-neutral-400 font-mono tracking-wide uppercase">
+                  Browser-Based File Utilities
+                </span>
+              </div>
             </div>
-            <span className="font-bold text-neutral-800 tracking-tight font-sans">
-              {t.brand} File & Media Toolbox
-            </span>
+
+            {/* AdSense compliance pages list */}
+            <div className="flex flex-wrap gap-x-5 gap-y-2 text-xs font-semibold text-neutral-500 hover:text-neutral-900 transition-colors">
+              <button 
+                onClick={() => handleNavigate('/hakkimizda')} 
+                className="hover:text-black hover:underline cursor-pointer transition-all"
+              >
+                Hakkımızda
+              </button>
+              <button 
+                onClick={() => handleNavigate('/iletisim')} 
+                className="hover:text-black hover:underline cursor-pointer transition-all"
+              >
+                İleletişim
+              </button>
+              <button 
+                onClick={() => handleNavigate('/gizlilik-politikasi')} 
+                className="hover:text-black hover:underline cursor-pointer transition-all font-bold text-neutral-900"
+              >
+                Gizlilik Politikası
+              </button>
+              <button 
+                onClick={() => handleNavigate('/kullanim-sartlari')} 
+                className="hover:text-black hover:underline cursor-pointer transition-all"
+              >
+                Kullanım Şartları
+              </button>
+              <button 
+                onClick={() => handleNavigate('/cerez-politikasi')} 
+                className="hover:text-black hover:underline cursor-pointer transition-all"
+              >
+                Çerez Politikası
+              </button>
+              <button 
+                onClick={() => handleNavigate('/sss')} 
+                className="hover:text-black hover:underline cursor-pointer transition-all"
+              >
+                S.S.S.
+              </button>
+              <button 
+                onClick={() => handleNavigate('/topluluk-kurallari')} 
+                className="hover:text-black hover:underline cursor-pointer transition-all"
+              >
+                Topluluk Kuralları
+              </button>
+              <button 
+                onClick={() => handleNavigate('/site-haritasi')} 
+                className="hover:text-black hover:underline cursor-pointer transition-all"
+              >
+                Site Haritası
+              </button>
+            </div>
           </div>
 
-          <div className="flex flex-wrap justify-center gap-6 font-medium text-neutral-500">
-            <span className="hover:text-neutral-900 transition-colors">100% Client-Side Computing</span>
-            <span className="hover:text-neutral-900 transition-colors">Zero Server Storage</span>
-            <span className="hover:text-neutral-900 transition-colors">SharedArrayBuffer Sandbox Protection</span>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-xs text-neutral-400 font-sans">
+            <div className="flex flex-wrap justify-center sm:justify-start gap-4 md:gap-6 font-medium text-neutral-400">
+              <span className="hover:text-neutral-700 transition-colors">100% Client-Side Computing</span>
+              <span className="hover:text-neutral-700 transition-colors">Zero Server Storage</span>
+              <span className="hover:text-neutral-700 transition-colors">KVKK / GDPR Protection Compliant</span>
+            </div>
+
+            <div className="font-mono text-neutral-400 text-center sm:text-right">
+              © 2026. Security Standard Compliant. Tüm hakları saklıdır.
+            </div>
           </div>
 
-          <div className="font-mono text-neutral-400">
-            © 2026. Security Standard Compliant.
-          </div>
         </div>
       </footer>
 
