@@ -38,13 +38,109 @@ export default function App() {
     return (saved as Language) || 'TR';
   });
 
-  const [activeToolId, setActiveToolId] = useState<string | null>(null);
+  const [activeToolId, setActiveToolId] = useState<string | null>(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('tool');
+  });
   const [activePath, setActivePath] = useState<string | null>(() => {
     const p = window.location.pathname;
     const infoPaths = ['/hakkimizda', '/iletisim', '/gizlilik-politikasi', '/kullanim-sartlari', '/cerez-politikasi', '/sss', '/topluluk-kurallari', '/site-haritasi'];
     return infoPaths.includes(p) ? p : null;
   });
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
+  // Dynamic Title and SEO Meta Description management for Google Indexing & AdSense Approval
+  useEffect(() => {
+    let title = "WeBox - Tamamen Tarayıcıda Çevrimdışı Dosya & Medya Araç Kutusu";
+    let desc = "WeBox ile PDF birleştirme, belge çeviri, format dönüştürme ve görsel boyutlandırma gibi tüm işlemlerinizi dosyalarınızı sunucuya yüklemeden %100 güvenli yapın.";
+
+    if (activePath) {
+      switch (activePath) {
+        case '/hakkimizda':
+          title = "WeBox Hakkımızda | Güvenli ve Çevrimdışı Dosya Çözümleri";
+          desc = "WeBox nedir, geliştirilme amacı nedir? Dosyalarınızı uzak bir sunucuya göndermeden tamamen tarayıcı üzerinde nasıl işlediğimizi keşfedin.";
+          break;
+        case '/iletisim':
+          title = "WeBox İletişim | Sorularınız ve Destek Talepleri";
+          desc = "WeBox geliştirici ekibi ve kurucusu ile iletişime geçin. sunayseyidli01@gmail.com aktif e-posta adresi ve güvenli iletişim formumuz.";
+          break;
+        case '/gizlilik-politikasi':
+          title = "Gizlilik Politikası (Privacy Policy) | WeBox Resmi Sözleşmesi";
+          desc = "Google AdSense ve KVKK uyumlu gizlilik politikamız. Tamamen client-side işlem yapılan sitemizde hangi çerezlerin ve logların tutulduğunu öğrenin.";
+          break;
+        case '/kullanim-sartlari':
+          title = "Kullanım Şartları (Terms of Service) | WeBox Kullanım Sözleşmesi";
+          desc = "WeBox ücretsiz çevrimdışı dosya araçları ve lisans kullanım şartları. Sorumluluk reddi ve telif ihlalleri hakkında bilgilendirme.";
+          break;
+        case '/cerez-politikasi':
+          title = "Çerez Politikası (Cookie Policy) | WeBox AdSense Çerez Bildirimi";
+          desc = "WeBox sitesinde kullanılan reklam, Google Analytics ve dil çerezleri hakkında detaylı bilgi. Çerez engelleme ve ayar detayları.";
+          break;
+        case '/sss':
+          title = "Sıkça Sorulan Sorular | S.S.S. | WeBox Hakkında Bilgiler";
+          desc = "WeBox güvenilir mi? Ücretsiz mi? Dosya boyutu sınırı var mı? WeBox hakkında en çok sorulan tüm soruların detaylı yanıtları.";
+          break;
+        case '/topluluk-kurallari':
+          title = "Topluluk Kuralları | WeBox Etik ve Saygı Standartları";
+          desc = "WeBox platformu üzerinde geçerli olan küfür, hile ve haksız kullanım yasaklarını içeren etik kurallar bildirgesi.";
+          break;
+        case '/site-haritasi':
+          title = "Site Haritası (Sitemap) | WeBox Tüm Araçlar ve Sayfalar";
+          desc = "WeBox platformundaki tüm ücretsiz PDF, belge, video ve resim araçlarının, ayrıca yasal sayfaların hiyerarşik dizini.";
+          break;
+      }
+    } else if (activeToolId) {
+      switch (activeToolId) {
+        case 'doc-translator':
+          title = "Belge Dil Çevirici | WeBox Yerel PDF ve Metin Çevirisi";
+          desc = "Tarayıcı tabanlı güvenli belge çevirici ile PDF ve metin dosyalarınızı saniyeler içinde farklı dillere tamamen çevrimdışı çevirin.";
+          break;
+        case 'format-converter':
+          title = "Evrensel Format Dönüştürücü | WeBox Ses, Görsel & PDF Dönüştür";
+          desc = "Resimlerinizi (PNG, JPG, WebP), ses dosyalarınızı ve belgelerinizi sunucuya yüklemeden dilediğiniz formata güvenle dönüştürün.";
+          break;
+        case 'pdf-merge':
+          title = "PDF Birleştirici | WeBox Çoklu PDF Dosyası Birleştirme";
+          desc = "İki veya daha fazla PDF belgesini tamamen yerel tarayıcı belleğinde bir araya getirin. En güvenli, sınırsız ve hızlı PDF birleştirme aracı.";
+          break;
+        case 'image-to-pdf':
+          title = "Resimden PDF Yapıcı | WeBox PNG/JPG Dosyalarını PDF'e Çevir";
+          desc = "Toplu resimleri sürükleyip bırakarak şık bir PDF albümü oluşturun. Görsellerinizi tarayıcınızda anında PDF belgesine dönüştürün.";
+          break;
+        case 'pdf-meta':
+          title = "PDF Metadata Düzenleyici | WeBox PDF Bilgilerini Güncelle";
+          desc = "PDF dosyalarınızın yazar, başlık, anahtar kelime, şifreleme ve güvenlik ayarlarını tamamen çevrimdışı olarak düzenleyin.";
+          break;
+        case 'video-audio':
+          title = "Videodan Ses Çıkarıcı | WeBox MP4'ten MP3 Yapıcı";
+          desc = "Herhangi bir videonun arkasındaki müzik veya ses kaydını yüksek kalitede MP3/AAC olarak yerel olarak ayrıştırın ve indirin.";
+          break;
+        case 'media-cutter':
+          title = "Ses ve Video Kırpıcı | WeBox Hassas Medya Kesici";
+          desc = "Büyük video ve ses dosyalarınızdan dilediğiniz saniye aralığını tamamen sunucusuz ve son derece hızlı bir şekilde kesip kaydedin.";
+          break;
+        case 'batch-resizer':
+          title = "Toplu Resim Yeniden Boyutlandırıcı | WeBox Görsel Küçültücü";
+          desc = "Birden fazla görseli piksel veya yüzde bazında toplu olarak yeniden boyutlandırın, kalitesini ayarlayın ve ZIP olarak yerel indirin.";
+          break;
+        case 'image-watermark':
+          title = "Resime Filigran Ekleme | WeBox Görsel Koruma & Resim Logo";
+          desc = "Görsellerinizin üzerine metin veya logo şeklinde filigran ekleyerek telif hakkınızı koruyun. Tamamen tarayıcı üzerinde yüksek hızlı işlem.";
+          break;
+      }
+    }
+
+    document.title = title;
+    
+    // Dynamically update or create meta description for Google indexers
+    let metaDesc = document.querySelector('meta[name="description"]');
+    if (!metaDesc) {
+      metaDesc = document.createElement('meta');
+      metaDesc.setAttribute('name', 'description');
+      document.head.appendChild(metaDesc);
+    }
+    metaDesc.setAttribute('content', desc);
+  }, [activePath, activeToolId]);
 
   useEffect(() => {
     localStorage.setItem('webox_lang', currentLanguage);
