@@ -498,8 +498,17 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
                 <ul className="space-y-2 text-xs font-semibold text-neutral-500 flex flex-col">
                   <li>
                     <a 
-                      href="/?tool=doc-translator" 
-                      onClick={(e) => { e.preventDefault(); onNavigate('doc-translator'); }}
+                      href="/metin-cevirici" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('text-translation'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
+                    >
+                      🗣️ Metin Çevirici (Text Translator)
+                    </a>
+                  </li>
+                  <li>
+                    <a 
+                      href="/belge-cevirici" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('document-translation'); }}
                       className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       📄 Belge Çeviricisi (Document Translator)

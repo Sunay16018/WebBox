@@ -19,5 +19,11 @@
         }
       ]
     }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!api/|logo-192.png|logo-512.png|logo.jpg|logo.png|manifest.json|sitemap.xml|sw.js|favicon.ico|googlea34f4f888ccac059.html).*)",
+      "destination": "/index.html"
+    }
   ]
 }

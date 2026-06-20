@@ -34,6 +34,43 @@ import BatchResizer from './components/BatchResizer';
 import WatermarkAdder from './components/WatermarkAdder';
 import InfoPages from './components/InfoPages';
 
+const PATH_TO_TOOL_MAP: Record<string, string> = {
+  '/metin-cevirici': 'text-translation',
+  '/text-translation': 'text-translation',
+  '/belge-cevirici': 'document-translation',
+  '/document-translation': 'document-translation',
+  '/doc-translator': 'document-translation',
+  '/format-donusturucu': 'format-converter',
+  '/format-converter': 'format-converter',
+  '/pdf-birlestir': 'pdf-merge',
+  '/pdf-merge': 'pdf-merge',
+  '/resim-pdf': 'image-to-pdf',
+  '/image-to-pdf': 'image-to-pdf',
+  '/pdf-metadata': 'pdf-meta',
+  '/pdf-meta': 'pdf-meta',
+  '/video-ses-cikar': 'video-audio',
+  '/video-audio': 'video-audio',
+  '/medya-kesici': 'media-cutter',
+  '/media-cutter': 'media-cutter',
+  '/toplu-resim-boyutlandir': 'batch-resizer',
+  '/batch-resizer': 'batch-resizer',
+  '/resim-filigran': 'image-watermark',
+  '/image-watermark': 'image-watermark',
+};
+
+const TOOL_TO_PATH_MAP: Record<string, string> = {
+  'text-translation': '/metin-cevirici',
+  'document-translation': '/belge-cevirici',
+  'format-converter': '/format-donusturucu',
+  'pdf-merge': '/pdf-birlestir',
+  'image-to-pdf': '/resim-pdf',
+  'pdf-meta': '/pdf-metadata',
+  'video-audio': '/video-ses-cikar',
+  'media-cutter': '/medya-kesici',
+  'batch-resizer': '/toplu-resim-boyutlandir',
+  'image-watermark': '/resim-filigran',
+};
+
 export default function App() {
   const [currentLanguage, setCurrentLanguage] = useState<Language>(() => {
     const saved = localStorage.getItem('webox_lang') || localStorage.getItem('webbox_lang');
@@ -41,8 +78,14 @@ export default function App() {
   });
 
   const [activeToolId, setActiveToolId] = useState<string | null>(() => {
+    const p = window.location.pathname;
+    if (PATH_TO_TOOL_MAP[p]) {
+      return PATH_TO_TOOL_MAP[p];
+    }
     const params = new URLSearchParams(window.location.search);
-    return params.get('tool');
+    const queryTool = params.get('tool');
+    if (queryTool === 'doc-translator') return 'document-translation';
+    return queryTool;
   });
   const [activePath, setActivePath] = useState<string | null>(() => {
     const p = window.location.pathname;
@@ -127,9 +170,14 @@ export default function App() {
       }
     } else if (activeToolId) {
       switch (activeToolId) {
+        case 'text-translation':
+          title = "Metin Çevirici | WeBox Güvenli ve Çevrimdışı Metin Çevirisi";
+          desc = "Hızlı ve doğru metin çevirici ile yazılarınızı saniyeler içinde farklı dillere güvenle ve tamamen çevrimdışı (offline) çevirin.";
+          break;
+        case 'document-translation':
         case 'doc-translator':
-          title = "Belge Dil Çevirici | WeBox Yerel PDF ve Metin Çevirisi";
-          desc = "Tarayıcı tabanlı güvenli belge çevirici ile PDF ve metin dosyalarınızı saniyeler içinde farklı dillere tamamen çevrimdışı çevirin.";
+          title = "Belge Dil Çevirici | WeBox Yerel PDF ve Belge Çevirisi";
+          desc = "Tarayıcı tabanlı güvenli belge çevirici ile PDF, HTML, JSON ve metin dosyalarınızı saniyeler içinde farklı dillere tamamen çevrimdışı çevirin.";
           break;
         case 'format-converter':
           title = "Evrensel Format Dönüştürücü | WeBox Ses, Görsel & PDF Dönüştür";
@@ -189,10 +237,14 @@ export default function App() {
       if (infoPaths.includes(p)) {
         setActivePath(p);
         setActiveToolId(null);
+      } else if (PATH_TO_TOOL_MAP[p]) {
+        setActivePath(null);
+        setActiveToolId(PATH_TO_TOOL_MAP[p]);
       } else {
         setActivePath(null);
         const params = new URLSearchParams(window.location.search);
-        const tool = params.get('tool');
+        let tool = params.get('tool');
+        if (tool === 'doc-translator') tool = 'document-translation';
         setActiveToolId(tool);
       }
     };
@@ -216,9 +268,14 @@ export default function App() {
       setActivePath(path);
       setActiveToolId(null);
     } else {
-      window.history.pushState({}, '', `/?tool=${path}`);
+      const targetPath = TOOL_TO_PATH_MAP[path];
+      if (targetPath) {
+        window.history.pushState({}, '', targetPath);
+      } else {
+        window.history.pushState({}, '', `/?tool=${path}`);
+      }
       setActivePath(null);
-      setActiveToolId(path);
+      setActiveToolId(path === 'doc-translator' ? 'document-translation' : path);
     }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -332,7 +389,7 @@ export default function App() {
                     id="btn-hero-explore"
                     onClick={() => {
                       // Automatically triggers Drawer opens by guiding user. Let's open the first category tool!
-                      handleSelectTool('doc-translator');
+                      handleSelectTool('document-translation');
                     }}
                     className="bg-neutral-900 hover:bg-neutral-800 text-white font-semibold text-sm px-6 py-3 rounded-xl transition-all shadow flex items-center gap-2 group"
                   >

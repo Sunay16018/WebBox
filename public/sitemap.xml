@@ -8,57 +8,63 @@
     <priority>1.00</priority>
   </url>
 
-  <!-- Araçlar (Tools) - Query ve Path Linkleri ile Maksimum İndeksleme -->
+  <!-- Araçlar (Tools) - Temiz Path Linkleri ile Maksimum İndeksleme -->
   <url>
-    <loc>https://www.webox.com/?tool=doc-translator</loc>
+    <loc>https://www.webox.com/metin-cevirici</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://www.webox.com/belge-cevirici</loc>
+    <lastmod>2026-06-20</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.95</priority>
+  </url>
+  <url>
+    <loc>https://www.webox.com/format-donusturucu</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/?tool=format-converter</loc>
+    <loc>https://www.webox.com/pdf-birlestir</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/?tool=pdf-merge</loc>
+    <loc>https://www.webox.com/resim-pdf</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/?tool=image-to-pdf</loc>
-    <lastmod>2026-06-20</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.90</priority>
-  </url>
-  <url>
-    <loc>https://www.webox.com/?tool=pdf-meta</loc>
+    <loc>https://www.webox.com/pdf-metadata</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/?tool=video-audio</loc>
+    <loc>https://www.webox.com/video-ses-cikar</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/?tool=media-cutter</loc>
+    <loc>https://www.webox.com/medya-kesici</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/?tool=batch-resizer</loc>
+    <loc>https://www.webox.com/toplu-resim-boyutlandir</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/?tool=image-watermark</loc>
+    <loc>https://www.webox.com/resim-filigran</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>

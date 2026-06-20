@@ -4,25 +4,25 @@
   "description": "Tüm döküman, ses ve PDF dosyalarınızı sunucusuz doğrudan cihazınızda işleyin.",
   "icons": [
     {
-      "src": "logo-192.png",
+      "src": "/logo-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "logo-192.png",
+      "src": "/logo-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "logo-512.png",
+      "src": "/logo-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "logo-512.png",
+      "src": "/logo-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -35,32 +35,32 @@
   "orientation": "portrait",
   "shortcuts": [
     {
-      "name": "Metin ve Belge Çeviricisi",
-      "short_name": "Çeviri",
-      "description": "Dökümanları ve metinleri anında çevrimdışı çevirin",
-      "url": "/?tool=doc-translator",
-      "icons": [{ "src": "logo-192.png", "sizes": "192x192", "type": "image/png" }]
+      "name": "Metin Çeviricisi",
+      "short_name": "Metin Çeviri",
+      "description": "Metinleri anında çevrimdışı çevirin",
+      "url": "/metin-cevirici",
+      "icons": [{ "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" }]
+    },
+    {
+      "name": "Belge Çeviricisi",
+      "short_name": "Belge Çeviri",
+      "description": "Dökümanları anında çevrimdışı çevirin",
+      "url": "/belge-cevirici",
+      "icons": [{ "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "PDF Birleştirici (Merger)",
       "short_name": "PDF Birleştir",
       "description": "Çoklu PDF belgelerini güvenle birleştirin",
-      "url": "/?tool=pdf-merge",
-      "icons": [{ "src": "logo-192.png", "sizes": "192x192", "type": "image/png" }]
+      "url": "/pdf-birlestir",
+      "icons": [{ "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" }]
     },
     {
       "name": "Evrensel Format Dönüştürücü",
       "short_name": "Dönüştürücü",
       "description": "Görsel ve ses formatlarını cihazda dönüştürün",
-      "url": "/?tool=format-converter",
-      "icons": [{ "src": "logo-192.png", "sizes": "192x192", "type": "image/png" }]
-    },
-    {
-      "name": "Videodan Ses Çıkarıcı (Extractor)",
-      "short_name": "Ses Çıkarıcı",
-      "description": "Medya dosyalarından ses kanallarını ayıklayın",
-      "url": "/?tool=video-audio",
-      "icons": [{ "src": "logo-192.png", "sizes": "192x192", "type": "image/png" }]
+      "url": "/format-donusturucu",
+      "icons": [{ "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" }]
     }
   ]
 }
