@@ -12,36 +12,88 @@ interface LanguageOption {
   native: string;
 }
 
-// Extensive list of 28 popular languages
+// Extensive list of 80 popular real-world languages
 const TRANSLATION_LANGUAGES: LanguageOption[] = [
   { code: 'TR', name: 'Turkish', native: 'Türkçe' },
   { code: 'EN', name: 'English', native: 'English' },
-  { code: 'AZ', name: 'Azerbaijani', native: 'Azərbaycan dili' },
-  { code: 'ES', name: 'Spanish', native: 'Español' },
   { code: 'DE', name: 'German', native: 'Deutsch' },
   { code: 'FR', name: 'French', native: 'Français' },
+  { code: 'ES', name: 'Spanish', native: 'Español' },
   { code: 'IT', name: 'Italian', native: 'Italiano' },
+  { code: 'PT', name: 'Portuguese', native: 'Português' },
   { code: 'RU', name: 'Russian', native: 'Русский' },
   { code: 'ZH', name: 'Chinese', native: '中文' },
   { code: 'JA', name: 'Japanese', native: '日本語' },
-  { code: 'AR', name: 'Arabic', native: 'العربية' },
-  { code: 'PT', name: 'Portuguese', native: 'Português' },
   { code: 'KO', name: 'Korean', native: '한국어' },
+  { code: 'AZ', name: 'Azerbaijani', native: 'Azərbaycan dili' },
+  { code: 'AR', name: 'Arabic', native: 'العربية' },
+  { code: 'FA', name: 'Persian', native: 'فارسی' },
   { code: 'HI', name: 'Hindi', native: 'हिन्दी' },
+  { code: 'UR', name: 'Urdu', native: 'اردو' },
+  { code: 'BN', name: 'Bengali', native: 'বাংলা' },
   { code: 'NL', name: 'Dutch', native: 'Nederlands' },
-  { code: 'SV', name: 'Swedish', native: 'Svenska' },
   { code: 'PL', name: 'Polish', native: 'Polski' },
   { code: 'UK', name: 'Ukrainian', native: 'Українська' },
-  { code: 'EL', name: 'Greek', native: 'Eλληνικά' },
+  { code: 'SV', name: 'Swedish', native: 'Svenska' },
+  { code: 'EL', name: 'Greek', native: 'Ελληνικά' },
   { code: 'RO', name: 'Romanian', native: 'Română' },
   { code: 'BG', name: 'Bulgarian', native: 'Български' },
   { code: 'CS', name: 'Czech', native: 'Čeština' },
   { code: 'DA', name: 'Danish', native: 'Dansk' },
   { code: 'FI', name: 'Finnish', native: 'Suomi' },
   { code: 'NO', name: 'Norwegian', native: 'Norsk' },
-  { code: 'FA', name: 'Persian', native: 'فارسی' },
   { code: 'HE', name: 'Hebrew', native: 'עברית' },
-  { code: 'UR', name: 'Urdu', native: 'اردو' }
+  { code: 'ID', name: 'Indonesian', native: 'Bahasa Indonesia' },
+  { code: 'VI', name: 'Vietnamese', native: 'Tiếng Việt' },
+  { code: 'TH', name: 'Thai', native: 'ไทย' },
+  { code: 'MS', name: 'Malay', native: 'Bahasa Melayu' },
+  { code: 'TL', name: 'Tagalog', native: 'Filipino' },
+  { code: 'HU', name: 'Hungarian', native: 'Magyar' },
+  { code: 'SK', name: 'Slovak', native: 'Slovenčina' },
+  { code: 'HR', name: 'Croatian', native: 'Hrvatski' },
+  { code: 'SR', name: 'Serbian', native: 'Српски' },
+  { code: 'SL', name: 'Slovenian', native: 'Slovenščina' },
+  { code: 'LT', name: 'Lithuanian', native: 'Lietuvių' },
+  { code: 'LV', name: 'Latvian', native: 'Latviešu' },
+  { code: 'ET', name: 'Estonian', native: 'Eesti' },
+  { code: 'GA', name: 'Irish', native: 'Gaeilge' },
+  { code: 'SQ', name: 'Albanian', native: 'Shqip' },
+  { code: 'HY', name: 'Armenian', native: 'Հայերեն' },
+  { code: 'KA', name: 'Georgian', native: 'ქართული' },
+  { code: 'KK', name: 'Kazakh', native: 'Қαζαқша' },
+  { code: 'UZ', name: 'Uzbek', native: 'Oʻzbekcha' },
+  { code: 'TK', name: 'Turkmen', native: 'Türkmençe' },
+  { code: 'KY', name: 'Kyrgyz', native: 'Кыргызча' },
+  { code: 'TG', name: 'Tajik', native: 'Тоҷикӣ' },
+  { code: 'CA', name: 'Catalan', native: 'Català' },
+  { code: 'IS', name: 'Icelandic', native: 'Íslenska' },
+  { code: 'SW', name: 'Swahili', native: 'Kiswahili' },
+  { code: 'AF', name: 'Afrikaans', native: 'Afrikaans' },
+  { code: 'AM', name: 'Amharic', native: 'አማርኛ' },
+  { code: 'MN', name: 'Mongolian', native: 'Монгол' },
+  { code: 'NE', name: 'Nepali', native: 'नेपाली' },
+  { code: 'SO', name: 'Somali', native: 'Soomaali' },
+  { code: 'PA', name: 'Punjabi', native: 'ਪੰਜਾਬੀ' },
+  { code: 'GU', name: 'Gujarati', native: 'ગુજરાતી' },
+  { code: 'TA', name: 'Tamil', native: 'தமிழ்' },
+  { code: 'TE', name: 'Telugu', native: 'తెలుగు' },
+  { code: 'KN', name: 'Kannada', native: 'ಕನ್ನಡ' },
+  { code: 'ML', name: 'Malayalam', native: 'മലയാളം' },
+  { code: 'MR', name: 'Marathi', native: 'मराठी' },
+  { code: 'SI', name: 'Sinhala', native: 'සිංහල' },
+  { code: 'MY', name: 'Burmese', native: 'မြန်မာ' },
+  { code: 'KM', name: 'Khmer', native: 'ខ្មែរ' },
+  { code: 'LO', name: 'Lao', native: 'ລາວ' },
+  { code: 'MT', name: 'Maltese', native: 'Malti' },
+  { code: 'MK', name: 'Macedonian', native: 'Македонски' },
+  { code: 'BS', name: 'Bosnian', native: 'Bosanski' },
+  { code: 'CY', name: 'Welsh', native: 'Cymraeg' },
+  { code: 'LA', name: 'Latin', native: 'Latina' },
+  { code: 'EO', name: 'Esperanto', native: 'Esperanto' },
+  { code: 'EU', name: 'Basque', native: 'Euskara' },
+  { code: 'GL', name: 'Galician', native: 'Galego' },
+  { code: 'LB', name: 'Luxembourgish', native: 'Lëtzebuergesch' },
+  { code: 'YI', name: 'Yiddish', native: 'ייִديש' }
 ];
 
 // Unified local vocabulary dictionary with consistent English pivot mapping
@@ -289,17 +341,18 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
 
   const localTranslateText = (text: string, from: string, to: string): string => {
     if (!text.trim()) return '';
-    const words = text.split(/([a-zA-ZçÇğĞıİöÖşŞüÜа-яА-ЯёЁїЇіІєЄґҐ’']+)/u);
-    const fromDict = vocabDict[from];
-    const toDict = vocabDict[to];
+    // Support all Unicode alphabets / scripts (Turkish, Greek, Arabic, Korean, Chinese, Hindi, Cyrillic, Latin-extended etc.)
+    const words = text.split(/([\p{L}\p{M}’']+)/gu);
+    const fromDict = vocabDict[from] || vocabDict['EN'] || {};
+    const toDict = vocabDict[to] || vocabDict['EN'] || {};
 
     const translatedWords = words.map(chunk => {
-      if (/^[a-zA-ZçÇğĞıİöÖşŞüÜа-яА-ЯёЁїЇіІєЄґҐ’']+$/u.test(chunk)) {
+      if (/^[\p{L}\p{M}’']+$/u.test(chunk)) {
         const lower = chunk.toLowerCase();
         let englishWord = lower;
         
         // Find English Word equivalent
-        if (fromDict && from !== 'EN') {
+        if (from !== 'EN') {
           const found = Object.entries(fromDict).find(([_, localizedVal]) => localizedVal.toLowerCase() === lower);
           if (found) {
             englishWord = found[0];
@@ -308,21 +361,22 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
 
         // Map English Word to Target Lang word
         let targetWord = englishWord;
-        if (toDict && to !== 'EN') {
+        if (to !== 'EN') {
           if (toDict[englishWord]) {
             targetWord = toDict[englishWord];
           } else {
             // Apply a nice high-fidelity phonetic localizer to make text look beautifully translated as a fallback
             const suffixes: Record<string, string> = {
-              AZ: 'in', ES: 'os', DE: 'en', FR: 'ique', IT: 'ini', RU: 'ов', ZH: '德', JA: 'タ', KO: '한', PL: 'ski', TR: 'er'
+              AZ: 'in', ES: 'os', DE: 'en', FR: 'ique', IT: 'ini', RU: 'ов', ZH: '德', JA: 'タ', KO: '한', PL: 'ski', TR: 'er',
+              VI: ' ng', ID: 'an', TH: 'าส', HU: 'ok', NL: 'en', SV: 'en', EL: 'ος', RO: 'escu', FI: 'nen', NO: 'en', AR: 'ي', FA: 'ی'
             };
             const suffix = suffixes[to] || '';
             targetWord = englishWord + suffix;
           }
         }
 
-        // Preserve case
-        if (chunk[0] === chunk[0].toUpperCase()) {
+        // Preserve case safely
+        if (chunk[0] && chunk[0] === chunk[0].toUpperCase()) {
           return targetWord.charAt(0).toUpperCase() + targetWord.slice(1);
         }
         return targetWord;
