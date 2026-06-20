@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <!-- Ana Sayfa -->
   <url>
-    <loc>https://www.webox.com/</loc>
+    <loc>https://webox-app.vercel.app/</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.00</priority>
@@ -10,61 +10,61 @@
 
   <!-- Araçlar (Tools) - Temiz Path Linkleri ile Maksimum İndeksleme -->
   <url>
-    <loc>https://www.webox.com/metin-cevirici</loc>
+    <loc>https://webox-app.vercel.app/metin-cevirici</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/belge-cevirici</loc>
+    <loc>https://webox-app.vercel.app/belge-cevirici</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.95</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/format-donusturucu</loc>
+    <loc>https://webox-app.vercel.app/format-donusturucu</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/pdf-birlestir</loc>
+    <loc>https://webox-app.vercel.app/pdf-birlestir</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/resim-pdf</loc>
+    <loc>https://webox-app.vercel.app/resim-pdf</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/pdf-metadata</loc>
+    <loc>https://webox-app.vercel.app/pdf-metadata</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/video-ses-cikar</loc>
+    <loc>https://webox-app.vercel.app/video-ses-cikar</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.90</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/medya-kesici</loc>
+    <loc>https://webox-app.vercel.app/medya-kesici</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/toplu-resim-boyutlandir</loc>
+    <loc>https://webox-app.vercel.app/toplu-resim-boyutlandir</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/resim-filigran</loc>
+    <loc>https://webox-app.vercel.app/resim-filigran</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.85</priority>
@@ -72,49 +72,49 @@
 
   <!-- Kurumsal ve Yasal Sayfalar (Google AdSense Onayı İçin Kritik) -->
   <url>
-    <loc>https://www.webox.com/hakkimizda</loc>
+    <loc>https://webox-app.vercel.app/hakkimizda</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/iletisim</loc>
+    <loc>https://webox-app.vercel.app/iletisim</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.70</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/gizlilik-politikasi</loc>
+    <loc>https://webox-app.vercel.app/gizlilik-politikasi</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.60</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/kullanim-sartlari</loc>
+    <loc>https://webox-app.vercel.app/kullanim-sartlari</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.60</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/cerez-politikasi</loc>
+    <loc>https://webox-app.vercel.app/cerez-politikasi</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.60</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/sss</loc>
+    <loc>https://webox-app.vercel.app/sss</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/topluluk-kurallari</loc>
+    <loc>https://webox-app.vercel.app/topluluk-kurallari</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.50</priority>
   </url>
   <url>
-    <loc>https://www.webox.com/site-haritasi</loc>
+    <loc>https://webox-app.vercel.app/site-haritasi</loc>
     <lastmod>2026-06-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.80</priority>
