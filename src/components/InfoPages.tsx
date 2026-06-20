@@ -21,6 +21,31 @@ interface InfoPagesProps {
   currentLanguage: string;
 }
 
+const PageWrapper = ({ title, onBack, children }: { title: string; onBack: () => void; children: React.ReactNode }) => (
+  <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-neutral-100 shadow-[0_1px_3px_0_rgba(0,0,0,0.01)] p-8 sm:p-12 space-y-8">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-100 pb-6">
+      <div>
+        <button 
+          onClick={onBack}
+          className="group inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-neutral-900 transition-colors mb-2"
+        >
+          <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
+          Ana Sayfaya Dön
+        </button>
+        <h1 className="text-3xl font-extrabold tracking-tight text-neutral-900 font-sans">
+          {title}
+        </h1>
+      </div>
+      <div className="hidden sm:inline-flex px-3 py-1 bg-neutral-50 border border-neutral-100 rounded-full text-[11px] font-mono font-medium text-neutral-500">
+        WEBOX LEGAL SECURE
+      </div>
+    </div>
+    <div className="prose prose-neutral max-w-none text-neutral-600 space-y-6 text-sm leading-relaxed">
+      {children}
+    </div>
+  </div>
+);
+
 export default function InfoPages({ pagePath, onNavigate, currentLanguage }: InfoPagesProps) {
   // Contact state
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
@@ -52,36 +77,10 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
     onNavigate(null);
   };
 
-  // Safe container wrapper layout for informational pages
-  const PageWrapper = ({ title, children }: { title: string; children: React.ReactNode }) => (
-    <div className="max-w-4xl mx-auto bg-white rounded-3xl border border-neutral-100 shadow-[0_1px_3px_0_rgba(0,0,0,0.01)] p-8 sm:p-12 space-y-8">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-100 pb-6">
-        <div>
-          <button 
-            onClick={handleBackToHome}
-            className="group inline-flex items-center gap-1.5 text-xs font-semibold text-neutral-400 hover:text-neutral-900 transition-colors mb-2"
-          >
-            <ArrowLeft className="w-3.5 h-3.5 group-hover:-translate-x-0.5 transition-transform" />
-            Ana Sayfaya Dön
-          </button>
-          <h1 className="text-3xl font-extrabold tracking-tight text-neutral-900 font-sans">
-            {title}
-          </h1>
-        </div>
-        <div className="hidden sm:inline-flex px-3 py-1 bg-neutral-50 border border-neutral-100 rounded-full text-[11px] font-mono font-medium text-neutral-500">
-          WEBOX LEGAL SECURE
-        </div>
-      </div>
-      <div className="prose prose-neutral max-w-none text-neutral-600 space-y-6 text-sm leading-relaxed">
-        {children}
-      </div>
-    </div>
-  );
-
   switch (pagePath) {
     case '/hakkimizda':
       return (
-        <PageWrapper title="Hakkımızda">
+        <PageWrapper title="Hakkımızda" onBack={handleBackToHome}>
           <div className="space-y-6">
             <p className="text-base text-neutral-700 font-medium">
               WeBox, kullanıcı gizliliğini ilk sıraya koyan, tamamen tarayıcı üzerinde çalışan modern ve güvenli bir çevrimdışı işlem (Offline Sandbox) araç kutusudur.
@@ -127,7 +126,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
     case '/iletisim':
       return (
-        <PageWrapper title="İletişim">
+        <PageWrapper title="İletişim" onBack={handleBackToHome}>
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
             <div className="md:col-span-5 space-y-6">
               <p className="text-sm text-neutral-600">
@@ -257,7 +256,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
     case '/gizlilik-politikasi':
       return (
-        <PageWrapper title="Gizlilik Politikası">
+        <PageWrapper title="Gizlilik Politikası" onBack={handleBackToHome}>
           <div className="space-y-6 text-xs text-neutral-500 leading-relaxed font-sans">
             <p className="text-xs text-neutral-400">Son Güncelleme: 19 Haziran 2026</p>
             
@@ -310,7 +309,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
     case '/kullanim-sartlari':
       return (
-        <PageWrapper title="Kullanım Şartları">
+        <PageWrapper title="Kullanım Şartları" onBack={handleBackToHome}>
           <div className="space-y-6 text-xs text-neutral-500 leading-relaxed font-sans">
             <p className="text-xs text-neutral-400">Son Güncelleme: 19 Haziran 2026</p>
             
@@ -356,7 +355,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
     case '/cerez-politikasi':
       return (
-        <PageWrapper title="Çerez Politikası">
+        <PageWrapper title="Çerez Politikası" onBack={handleBackToHome}>
           <div className="space-y-6 text-xs text-neutral-500 leading-relaxed font-sans">
             <p className="text-xs text-neutral-400">Son Güncelleme: 19 Haziran 2026</p>
             
@@ -392,7 +391,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
     case '/sss':
       return (
-        <PageWrapper title="Sıkça Sorulan Sorular (S.S.S.)">
+        <PageWrapper title="Sıkça Sorulan Sorular (S.S.S.)" onBack={handleBackToHome}>
           <div className="space-y-6">
             <p className="text-sm text-neutral-600">
               WeBox, güvenli, yerel ve sıfır gecikmeli çevrimiçi dosya üreticinizdir. Sitemizle ilgili en çok merak edilen konuları aşağıda listeledik:
@@ -446,7 +445,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
     case '/topluluk-kurallari':
       return (
-        <PageWrapper title="Topluluk Kuralları">
+        <PageWrapper title="Topluluk Kuralları" onBack={handleBackToHome}>
           <div className="space-y-6 text-xs text-neutral-500 leading-relaxed font-sans">
             <p className="text-xs text-neutral-400">Son Güncelleme: 19 Haziran 2026</p>
             
@@ -484,7 +483,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
     case '/site-haritasi':
       return (
-        <PageWrapper title="Site Haritası">
+        <PageWrapper title="Site Haritası" onBack={handleBackToHome}>
           <div className="space-y-6 font-sans">
             <p className="text-sm text-neutral-600">
               Sitemizin tüm işlevsel araçlarına ve hukuki doküman / AdSense onay sayfalarına aşağıdaki şematik liste üzerinden kolaylıkla ulaşabilirsiniz:

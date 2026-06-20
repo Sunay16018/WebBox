@@ -20,5 +20,35 @@
   "background_color": "#171717",
   "theme_color": "#171717",
   "display": "standalone",
-  "orientation": "portrait"
+  "orientation": "portrait",
+  "shortcuts": [
+    {
+      "name": "Metin ve Belge Çeviricisi",
+      "short_name": "Çeviri",
+      "description": "Dökümanları ve metinleri anında çevrimdışı çevirin",
+      "url": "/?tool=doc-translator",
+      "icons": [{ "src": "/logo.jpg", "sizes": "192x192", "type": "image/jpeg" }]
+    },
+    {
+      "name": "PDF Birleştirici (Merger)",
+      "short_name": "PDF Birleştir",
+      "description": "Çoklu PDF belgelerini güvenle birleştirin",
+      "url": "/?tool=pdf-merge",
+      "icons": [{ "src": "/logo.jpg", "sizes": "192x192", "type": "image/jpeg" }]
+    },
+    {
+      "name": "Evrensel Format Dönüştürücü",
+      "short_name": "Dönüştürücü",
+      "description": "Görsel ve ses formatlarını cihazda dönüştürün",
+      "url": "/?tool=format-converter",
+      "icons": [{ "src": "/logo.jpg", "sizes": "192x192", "type": "image/jpeg" }]
+    },
+    {
+      "name": "Videodan Ses Çıkarıcı (Extractor)",
+      "short_name": "Ses Çıkarıcı",
+      "description": "Medya dosyalarından ses kanallarını ayıklayın",
+      "url": "/?tool=video-audio",
+      "icons": [{ "src": "/logo.jpg", "sizes": "192x192", "type": "image/jpeg" }]
+    }
+  ]
 }

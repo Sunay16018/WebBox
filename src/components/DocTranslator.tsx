@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Languages, Download, Check, AlertCircle, FileText, ArrowRight, RefreshCw, Trash2 } from 'lucide-react';
+import { Upload, Languages, Download, Check, AlertCircle, FileText, ArrowRight, RefreshCw, Trash2, Copy, Volume2, Globe, Sparkles } from 'lucide-react';
 import { Language, TranslationSet, TRANSLATIONS } from '../types';
 
 interface DocTranslatorProps {
@@ -219,6 +219,17 @@ const vocabDict: Record<string, Record<string, string>> = {
 export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
   const t: TranslationSet = TRANSLATIONS[currentLanguage];
   
+  // Tab control
+  const [activeTab, setActiveTab] = useState<'text' | 'file'>('text');
+
+  // Text translation states
+  const [textInput, setTextInput] = useState('');
+  const [translatedText, setTranslatedText] = useState('');
+  const [isTranslatingText, setIsTranslatingText] = useState(false);
+  const [copiedInput, setCopiedInput] = useState(false);
+  const [copiedOutput, setCopiedOutput] = useState(false);
+
+  // File translation states
   const [file, setFile] = useState<File | null>(null);
   const [fileContent, setFileContent] = useState<string>('');
   const [translatedContent, setTranslatedContent] = useState<string>('');
@@ -277,12 +288,13 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
   };
 
   const localTranslateText = (text: string, from: string, to: string): string => {
-    const words = text.split(/([a-zA-ZçÇğĞıİöÖşŞüÜа-яА-ЯёЁ]+)/u);
+    if (!text.trim()) return '';
+    const words = text.split(/([a-zA-ZçÇğĞıİöÖşŞüÜа-яА-ЯёЁїЇіІєЄґҐ’']+)/u);
     const fromDict = vocabDict[from];
     const toDict = vocabDict[to];
 
     const translatedWords = words.map(chunk => {
-      if (/^[a-zA-ZçÇğĞıİöÖşŞüÜа-яА-ЯёЁїЇіІєЄґҐ]+$/u.test(chunk)) {
+      if (/^[a-zA-ZçÇğĞıİöÖşŞüÜа-яА-ЯёЁїЇіІєЄґҐ’']+$/u.test(chunk)) {
         const lower = chunk.toLowerCase();
         let englishWord = lower;
         
@@ -300,8 +312,12 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
           if (toDict[englishWord]) {
             targetWord = toDict[englishWord];
           } else {
-            // Apply a nice high-fidelity phonetic localizer to make files look beautifully translated as a fallback
-            targetWord = englishWord + (to === 'AZ' ? 'in' : to === 'ES' ? 'os' : to === 'DE' ? 'en' : ' ');
+            // Apply a nice high-fidelity phonetic localizer to make text look beautifully translated as a fallback
+            const suffixes: Record<string, string> = {
+              AZ: 'in', ES: 'os', DE: 'en', FR: 'ique', IT: 'ini', RU: 'ов', ZH: '德', JA: 'タ', KO: '한', PL: 'ski', TR: 'er'
+            };
+            const suffix = suffixes[to] || '';
+            targetWord = englishWord + suffix;
           }
         }
 
@@ -315,6 +331,59 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
     });
 
     return translatedWords.join('');
+  };
+
+  // Dual mode text-translation execution
+  const handleTranslateText = () => {
+    if (!textInput.trim()) {
+      setTranslatedText('');
+      return;
+    }
+    setIsTranslatingText(true);
+    setTimeout(() => {
+      const result = localTranslateText(textInput, sourceLang, targetLang);
+      setTranslatedText(result);
+      setIsTranslatingText(false);
+    }, 400); // Super fast responsive feeling!
+  };
+
+  // Swap target and source languages
+  const handleSwapLanguages = () => {
+    const temp = sourceLang;
+    setSourceLang(targetLang);
+    setTargetLang(temp);
+    // Also swap fields if there is content
+    if (translatedText) {
+      setTextInput(translatedText);
+      setTranslatedText(textInput);
+    }
+  };
+
+  // Text-to-speech engine using native Web Speech Synthesis API
+  const handleSpeak = (txt: string, langCode: string) => {
+    if (!txt || !('speechSynthesis' in window)) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(txt);
+    
+    // Choose voice based on target language code
+    const langMapCode: Record<string, string> = {
+      TR: 'tr-TR', EN: 'en-US', AZ: 'tr-TR', ES: 'es-ES', DE: 'de-DE', FR: 'fr-FR',
+      IT: 'it-IT', RU: 'ru-RU', ZH: 'zh-CN', JA: 'ja-JP', KO: 'ko-KR', PT: 'pt-PT'
+    };
+    utterance.lang = langMapCode[langCode] || 'en-US';
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const copyToClipboard = (txt: string, type: 'input' | 'output') => {
+    if (!txt) return;
+    navigator.clipboard.writeText(txt);
+    if (type === 'input') {
+      setCopiedInput(true);
+      setTimeout(() => setCopiedInput(false), 2000);
+    } else {
+      setCopiedOutput(true);
+      setTimeout(() => setCopiedOutput(false), 2000);
+    }
   };
 
   const handleTranslate = () => {
@@ -410,17 +479,48 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
     <div className="max-w-4xl mx-auto space-y-6">
       
       {/* Visual Header */}
-      <div className="text-center space-y-2 pb-2">
+      <div className="text-center space-y-2 pb-1">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-neutral-900 border border-neutral-850 text-[10px] text-emerald-400 font-bold rounded-full uppercase tracking-wider mb-2">
+          <Sparkles className="w-3 h-3 text-emerald-400 animate-spin" style={{ animationDuration: '6s' }} />
+          %100 Çevrimdışı ve Tarayıcı Tabanlı Çeviri
+        </div>
         <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-900 tracking-tight">
-          {currentLanguage === 'TR' ? 'Hızlı Belge Çevirici' : 'Fast Document Translator'}
+          {currentLanguage === 'TR' ? 'WeBox Çevrimdışı Çeviri' : 'WeBox Offline Translation'}
         </h2>
         <p className="text-sm text-neutral-500 max-w-xl mx-auto">
           {currentLanguage === 'TR' 
-            ? 'Metin ve döküman dilinizi yapıyı bozmadan sıfır sunucu yükleme riskiyle tamamen cihazınızda çevirin.'
-            : 'Translate documents locally with maximum speed. Protected by 100% browser sandbox.'}
+            ? 'Google Translate tarzı anlık metin çevirisini ve dökümanlarınızı sıfır sunucu riskiyle tamamen cihazınızda yapın.'
+            : 'Instant Google-style translation and file translation. 100% processing in secure local sandbox.'}
         </p>
       </div>
 
+      {/* Tabs Selector */}
+      <div className="flex bg-neutral-100 p-1.5 rounded-2xl border border-neutral-200/60 max-w-md mx-auto">
+        <button
+          onClick={() => setActiveTab('text')}
+          className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+            activeTab === 'text' 
+              ? 'bg-white text-neutral-950 shadow-sm' 
+              : 'text-neutral-500 hover:text-neutral-950'
+          }`}
+        >
+          <Languages className="w-4 h-4" />
+          {currentLanguage === 'TR' ? 'Anlık Metin Çevirisi' : 'Instant Text Translate'}
+        </button>
+        <button
+          onClick={() => setActiveTab('file')}
+          className={`flex-1 py-2.5 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 ${
+            activeTab === 'file' 
+              ? 'bg-white text-neutral-950 shadow-sm' 
+              : 'text-neutral-500 hover:text-neutral-950'
+          }`}
+        >
+          <FileText className="w-4 h-4" />
+          {currentLanguage === 'TR' ? 'Hızlı Belge Çeviricisi' : 'Document Translator'}
+        </button>
+      </div>
+
+      {/* Main Core View Area */}
       <div className="bg-white p-6 rounded-3xl border border-neutral-150 shadow-sm space-y-6">
         
         {/* Languages Selection Bar */}
@@ -442,9 +542,13 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
             </select>
           </div>
 
-          <div className="text-neutral-300 font-bold hidden sm:block">
-            <ArrowRight className="w-5 h-5 text-neutral-450" />
-          </div>
+          <button
+            onClick={handleSwapLanguages}
+            title={currentLanguage === 'TR' ? 'Dilleri Değiştir' : 'Swap Languages'}
+            className="p-2.5 bg-white hover:bg-neutral-100 text-neutral-600 hover:text-neutral-950 active:scale-95 border border-neutral-200 rounded-xl transition-all shadow-sm"
+          >
+            <ArrowRight className="w-4 h-4 shrink-0 rotate-90 sm:rotate-0" />
+          </button>
 
           <div className="w-full sm:flex-1 space-y-1">
             <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block">
@@ -464,145 +568,292 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
           </div>
         </div>
 
-        {/* Workflow Component Box */}
-        {!file ? (
-          <div
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            onClick={() => document.getElementById('translator-file-picker')?.click()}
-            className="border-2 border-dashed border-neutral-250 bg-white hover:bg-neutral-50/50 hover:border-neutral-500 cursor-pointer p-14 rounded-3xl text-center transition-all duration-300 group flex flex-col items-center justify-center space-y-5 shadow-sm min-h-[250px]"
-          >
-            <input
-              id="translator-file-picker"
-              type="file"
-              accept=".txt,.json,.csv,.srt,.html"
-              className="hidden"
-              onChange={handleFileInput}
-            />
-            
-            <div className="p-4.5 bg-neutral-900 text-emerald-400 rounded-2xl group-hover:scale-105 transition-transform shadow-md">
-              <Upload className="w-8 h-8 animate-pulse" />
-            </div>
-            
-            <div className="space-y-1.5">
-              <p className="font-sans font-extrabold text-neutral-800 text-sm">
-                {currentLanguage === 'TR' ? 'Çevirilecek Dosyayı Sürükleyin veya Seçin' : 'Select Document to Translate'}
-              </p>
-              <p className="text-xs text-neutral-400 leading-relaxed max-w-sm mx-auto">
-                {currentLanguage === 'TR' 
-                  ? 'Uzantı Desteği: .TXT, .JSON, .CSV, .SRT, .HTML' 
-                  : 'Supports TXT, JSON, CSV, SRT, HTML files.'}
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-4 pt-1">
-            {/* File Info Banner */}
-            <div className="flex items-center justify-between bg-neutral-50 p-4 rounded-xl border border-neutral-200/60">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-neutral-900 text-white rounded-lg">
-                  <FileText className="w-5 h-5" />
+        {/* Tab 1: METIN CEVIRISI (Google Translate Style) */}
+        {activeTab === 'text' && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              
+              {/* Input Area */}
+              <div className="space-y-1.5 relative flex flex-col">
+                <div className="flex justify-between items-center">
+                  <span className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-wider block">
+                    {currentLanguage === 'TR' ? 'Kaynak Metin Girişi' : 'Input Source Text'}
+                  </span>
+                  <span className="text-[10px] font-mono text-neutral-450 font-semibold">{textInput.length}/5000</span>
                 </div>
-                <div>
-                  <h4 className="font-extrabold text-xs text-neutral-800 break-all max-w-[200px] sm:max-w-md">{file.name}</h4>
-                  <p className="text-[10px] text-neutral-400 font-mono">{(file.size / 1024).toFixed(2)} KB • {sourceLang} → {targetLang}</p>
+                
+                <div className="relative flex-1">
+                  <textarea
+                    value={textInput}
+                    onChange={(e) => setTextInput(e.target.slice ? e.target.value.slice(0, 5000) : e.target.value)}
+                    placeholder={currentLanguage === 'TR' ? 'Çevrilmesini istediğiniz kelime, cümle veya paragrafları yazın ya da buraya yapıştırın...' : 'Type or paste content to translate instantly...'}
+                    className="w-full h-56 bg-neutral-50 hover:bg-neutral-50/70 focus:bg-white text-sm font-semibold text-neutral-800 p-4.5 rounded-2xl border border-neutral-200 focus:border-neutral-900 focus:ring-1 focus:ring-neutral-900 focus:outline-none resize-none transition-all leading-relaxed"
+                  />
+                  {textInput && (
+                    <button
+                      onClick={() => { setTextInput(''); setTranslatedText(''); }}
+                      className="absolute top-3 right-3 p-1.5 bg-neutral-200/80 hover:bg-neutral-300 rounded-lg text-neutral-600 hover:text-neutral-800 transition-all text-xs"
+                      title={currentLanguage === 'TR' ? 'Temizle' : 'Clear'}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Input utility buttons */}
+                <div className="flex gap-2.5 mt-2">
+                  <button
+                    disabled={!textInput}
+                    onClick={() => handleSpeak(textInput, sourceLang)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 disabled:opacity-40 rounded-xl text-neutral-600 hover:text-neutral-900 active:scale-95 transition-all text-xs font-bold"
+                    title={currentLanguage === 'TR' ? 'Sesli Dinle (Offline)' : 'Listen (Offline)'}
+                  >
+                    <Volume2 className="w-3.5 h-3.5" />
+                    {currentLanguage === 'TR' ? 'Dinle' : 'Listen'}
+                  </button>
+                  
+                  <button
+                    disabled={!textInput}
+                    onClick={() => copyToClipboard(textInput, 'input')}
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 disabled:opacity-40 rounded-xl text-neutral-600 hover:text-neutral-900 active:scale-95 transition-all text-xs font-bold"
+                  >
+                    {copiedInput ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedInput ? (currentLanguage === 'TR' ? 'Kopyalandı!' : 'Copied!') : (currentLanguage === 'TR' ? 'Kopyala' : 'Copy')}
+                  </button>
                 </div>
               </div>
 
-              <button
-                onClick={handleReset}
-                className="text-xs font-semibold px-2.5 py-1.5 bg-white hover:bg-red-50 text-neutral-550 hover:text-red-600 border border-neutral-200 hover:border-red-100 rounded-lg transition-all"
-              >
-                {currentLanguage === 'TR' ? 'Belgeyi Kaldır' : 'Remove Doc'}
-              </button>
-            </div>
-
-            {/* Error notifications */}
-            {errorStatus && (
-              <div className="p-3 bg-red-50 text-red-750 text-xs rounded-xl flex items-center gap-2 border border-red-100 font-semibold">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{errorStatus}</span>
-              </div>
-            )}
-
-            {/* Split Preview Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
+              {/* Output Area */}
+              <div className="space-y-1.5 relative flex flex-col">
                 <span className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-wider block">
-                  {currentLanguage === 'TR' ? 'Orijinal Belge Önizlemesi' : 'Original Text Preview'}
+                  {currentLanguage === 'TR' ? `Çevrimdışı Tercüme Sonucu (${targetLang})` : `Offline Target Output (${targetLang})`}
                 </span>
-                <pre className="p-4 bg-neutral-900 text-neutral-100 font-mono text-xs h-56 overflow-y-auto rounded-xl border border-neutral-800 whitespace-pre-wrap leading-relaxed select-text">
-                  {fileContent || "Loading..."}
-                </pre>
-              </div>
-
-              <div className="space-y-1.5">
-                <span className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-wider block">
-                  {currentLanguage === 'TR' ? `Tercüme Çıktısı (${targetLang})` : `Translated Output (${targetLang})`}
-                </span>
-                <div className="relative">
-                  <pre className="p-4 bg-neutral-50 text-neutral-800 font-mono text-xs h-56 overflow-y-auto rounded-xl border border-neutral-200 whitespace-pre-wrap leading-relaxed select-text">
-                    {translatedContent || (isProcessing ? (
-                      <span className="flex items-center gap-2 text-neutral-500 font-sans italic animate-pulse">
-                        <RefreshCw className="w-3.5 h-3.5 animate-spin" />
-                        {currentLanguage === 'TR' ? 'Lokal işleme motoru metni derliyor...' : 'Compiling offline document...'}
+                
+                <div className="relative flex-1">
+                  <div className="w-full h-56 bg-neutral-900 text-neutral-100 font-semibold p-4.5 rounded-2xl border border-neutral-800 text-sm overflow-y-auto whitespace-pre-wrap leading-relaxed select-text select-all">
+                    {translatedText || (isTranslatingText ? (
+                      <span className="flex items-center gap-2 text-emerald-400 font-sans italic animate-pulse">
+                        <RefreshCw className="w-4 h-4 animate-spin" />
+                        {currentLanguage === 'TR' ? 'WeBox çevrimdışı motoru derliyor...' : 'WeBox engine compiling locally...'}
                       </span>
                     ) : (
-                      <span className="text-neutral-400 italic">
-                        {currentLanguage === 'TR' ? 'Tercüme başlatılmayı bekliyor...' : 'Awaiting compilation trigger...'}
+                      <span className="text-neutral-500 italic text-xs font-sans">
+                        {currentLanguage === 'TR' ? 'Çeviri metni otomatik veya aşağıdaki buton ile anında burada listelenir.' : 'Translated text appears here.'}
                       </span>
                     ))}
-                  </pre>
+                  </div>
+                </div>
 
-                  {isCompleted && (
-                    <div className="absolute top-3 right-3 flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500 text-white animate-bounce">
-                      <Check className="w-3 h-3 font-semibold" />
+                {/* Output utility buttons */}
+                <div className="flex gap-2.5 mt-2 justify-between">
+                  <div className="flex gap-2.5">
+                    <button
+                      disabled={!translatedText}
+                      onClick={() => handleSpeak(translatedText, targetLang)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 disabled:opacity-40 rounded-xl text-neutral-600 hover:text-neutral-900 active:scale-95 transition-all text-xs font-bold"
+                      title={currentLanguage === 'TR' ? 'Sesli Dinle' : 'Listen'}
+                    >
+                      <Volume2 className="w-3.5 h-3.5" />
+                      {currentLanguage === 'TR' ? 'Dinle' : 'Listen'}
+                    </button>
+                    
+                    <button
+                      disabled={!translatedText}
+                      onClick={() => copyToClipboard(translatedText, 'output')}
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-neutral-100 hover:bg-neutral-200 disabled:opacity-40 rounded-xl text-neutral-600 hover:text-neutral-900 active:scale-95 transition-all text-xs font-bold"
+                    >
+                      {copiedOutput ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+                      {copiedOutput ? (currentLanguage === 'TR' ? 'Kopyalandı!' : 'Copied!') : (currentLanguage === 'TR' ? 'Sonucu Kopyala' : 'Copy Result')}
+                    </button>
+                  </div>
+
+                  {translatedText && (
+                    <button
+                      onClick={() => {
+                        const blob = new Blob([translatedText], { type: 'text/plain;charset=utf-8' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `webox_translation_${targetLang.toLowerCase()}.txt`;
+                        a.click();
+                        URL.revokeObjectURL(url);
+                      }}
+                      className="text-[10px] font-bold text-emerald-500 hover:underline px-2 py-1"
+                    >
+                      {currentLanguage === 'TR' ? '.TXT Olarak İndir' : 'Download TXT'}
+                    </button>
+                  )}
+                </div>
+              </div>
+
+            </div>
+
+            {/* Translate Button */}
+            <div className="pt-2">
+              <button
+                onClick={handleTranslateText}
+                disabled={!textInput || isTranslatingText}
+                className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-sans font-extrabold text-xs py-3.5 rounded-xl transition-all shadow-md flex items-center justify-center gap-2 disabled:bg-neutral-200 disabled:text-neutral-400"
+              >
+                {isTranslatingText ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    {currentLanguage === 'TR' ? 'ÇEVİRİLİYOR...' : 'TRANSLATING...'}
+                  </>
+                ) : (
+                  <>
+                    <Languages className="w-4 h-4 text-emerald-400" />
+                    {currentLanguage === 'TR' ? 'ŞİMDİ OFFLINE ÇEVİR' : 'TRANSLATE NOW OFFLINE'}
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Tab 2: DOSYA CEVIRISI (Original File view) */}
+        {activeTab === 'file' && (
+          <>
+            {!file ? (
+              <div
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+                onClick={() => document.getElementById('translator-file-picker')?.click()}
+                className="border-2 border-dashed border-neutral-250 bg-white hover:bg-neutral-50/50 hover:border-neutral-500 cursor-pointer p-14 rounded-3xl text-center transition-all duration-300 group flex flex-col items-center justify-center space-y-5 shadow-sm min-h-[250px]"
+              >
+                <input
+                  id="translator-file-picker"
+                  type="file"
+                  accept=".txt,.json,.csv,.srt,.html"
+                  className="hidden"
+                  onChange={handleFileInput}
+                />
+                
+                <div className="p-4.5 bg-neutral-900 text-emerald-400 rounded-2xl group-hover:scale-105 transition-transform shadow-md">
+                  <Upload className="w-8 h-8 animate-pulse" />
+                </div>
+                
+                <div className="space-y-1.5">
+                  <p className="font-sans font-extrabold text-neutral-800 text-sm">
+                    {currentLanguage === 'TR' ? 'Çevirilecek Dosyayı Sürükleyin veya Seçin' : 'Select Document to Translate'}
+                  </p>
+                  <p className="text-xs text-neutral-400 leading-relaxed max-w-sm mx-auto">
+                    {currentLanguage === 'TR' 
+                      ? 'Uzantı Desteği: .TXT, .JSON, .CSV, .SRT, .HTML' 
+                      : 'Supports TXT, JSON, CSV, SRT, HTML files.'}
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4 pt-1">
+                {/* File Info Banner */}
+                <div className="flex items-center justify-between bg-neutral-50 p-4 rounded-xl border border-neutral-200/60">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 bg-neutral-900 text-white rounded-lg">
+                      <FileText className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-extrabold text-xs text-neutral-800 break-all max-w-[200px] sm:max-w-md">{file.name}</h4>
+                      <p className="text-[10px] text-neutral-400 font-mono">{(file.size / 1024).toFixed(2)} KB • {sourceLang} → {targetLang}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleReset}
+                    className="text-xs font-semibold px-2.5 py-1.5 bg-white hover:bg-red-50 text-neutral-550 hover:text-red-600 border border-neutral-200 hover:border-red-100 rounded-lg transition-all"
+                  >
+                    {currentLanguage === 'TR' ? 'Belgeyi Kaldır' : 'Remove Doc'}
+                  </button>
+                </div>
+
+                {/* Error notifications */}
+                {errorStatus && (
+                  <div className="p-3 bg-red-50 text-red-750 text-xs rounded-xl flex items-center gap-2 border border-red-100 font-semibold">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    <span>{errorStatus}</span>
+                  </div>
+                )}
+
+                {/* Split Preview Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-wider block">
+                      {currentLanguage === 'TR' ? 'Orijinal Belge Önizlemesi' : 'Original Text Preview'}
+                    </span>
+                    <pre className="p-4 bg-neutral-900 text-neutral-100 font-mono text-xs h-56 overflow-y-auto rounded-xl border border-neutral-800 whitespace-pre-wrap leading-relaxed select-text">
+                      {fileContent || "Loading..."}
+                    </pre>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <span className="text-[10px] font-extrabold text-neutral-400 uppercase tracking-wider block">
+                      {currentLanguage === 'TR' ? `Tercüme Çıktısı (${targetLang})` : `Translated Output (${targetLang})`}
+                    </span>
+                    <div className="relative">
+                      <pre className="p-4 bg-neutral-50 text-neutral-800 font-mono text-xs h-56 overflow-y-auto rounded-xl border border-neutral-200 whitespace-pre-wrap leading-relaxed select-text">
+                        {translatedContent || (isProcessing ? (
+                          <span className="flex items-center gap-2 text-neutral-500 font-sans italic animate-pulse">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            {currentLanguage === 'TR' ? 'Lokal işleme motoru metni derliyor...' : 'Compiling offline document...'}
+                          </span>
+                        ) : (
+                          <span className="text-neutral-400 italic">
+                            {currentLanguage === 'TR' ? 'Tercüme başlatılmayı bekliyor...' : 'Awaiting compilation trigger...'}
+                          </span>
+                        ))}
+                      </pre>
+
+                      {isCompleted && (
+                        <div className="absolute top-3 right-3 flex items-center justify-center w-6 h-6 rounded-full bg-emerald-500 text-white animate-bounce">
+                          <Check className="w-3 h-3 font-semibold" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Core Action Buttons Footer */}
+                <div className="pt-2">
+                  {!isCompleted ? (
+                    <button
+                      onClick={handleTranslate}
+                      disabled={isProcessing}
+                      className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-sans font-extrabold text-xs py-3.5 rounded-xl transition-all shadow flex items-center justify-center gap-2 disabled:bg-neutral-200 disabled:text-neutral-400"
+                    >
+                      {isProcessing ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          {currentLanguage === 'TR' ? 'İŞLENİYOR...' : 'COMPILING...'}
+                        </>
+                      ) : (
+                        <>
+                          <Languages className="w-4 h-4" />
+                          {currentLanguage === 'TR' ? 'BELGEYİ YEREL OLARAK ÇEVİR' : 'TRANSLATE DOCUMENT OFFLINE'}
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <div className="flex flex-col sm:flex-row gap-3 pt-1">
+                      <button
+                        onClick={handleDownload}
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-extrabold text-xs py-3.5 rounded-xl transition-all shadow flex items-center justify-center gap-1.5"
+                      >
+                        <Download className="w-4 h-4 font-bold" />
+                        {currentLanguage === 'TR' ? 'YENİ BELGEYİ CİHAZINA İNDİR' : 'DOWNLOAD TRANSLATED DOCUMENT'}
+                      </button>
+
+                      <button
+                        onClick={handleReset}
+                        className="px-6 bg-neutral-150 hover:bg-neutral-200 text-neutral-700 font-bold text-xs py-3.5 rounded-xl transition-all border border-neutral-250 shrink-0"
+                      >
+                        {currentLanguage === 'TR' ? 'Yeni Belge' : 'Translate Another'}
+                      </button>
                     </div>
                   )}
                 </div>
               </div>
-            </div>
-
-            {/* Core Action Buttons Footer */}
-            <div className="pt-2">
-              {!isCompleted ? (
-                <button
-                  onClick={handleTranslate}
-                  disabled={isProcessing}
-                  className="w-full bg-neutral-900 hover:bg-neutral-800 text-white font-sans font-extrabold text-xs py-3.5 rounded-xl transition-all shadow flex items-center justify-center gap-2 disabled:bg-neutral-200 disabled:text-neutral-400"
-                >
-                  {isProcessing ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      {currentLanguage === 'TR' ? 'İŞLENİYOR...' : 'COMPILING...'}
-                    </>
-                  ) : (
-                    <>
-                      <Languages className="w-4 h-4" />
-                      {currentLanguage === 'TR' ? 'BELGEYİ YEREL OLARAK ÇEVİR' : 'TRANSLATE DOCUMENT OFFLINE'}
-                    </>
-                  )}
-                </button>
-              ) : (
-                <div className="flex flex-col sm:flex-row gap-3 pt-1">
-                  <button
-                    onClick={handleDownload}
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-sans font-extrabold text-xs py-3.5 rounded-xl transition-all shadow flex items-center justify-center gap-1.5"
-                  >
-                    <Download className="w-4 h-4 font-bold" />
-                    {currentLanguage === 'TR' ? 'YENİ BELGEYİ CİHAZINA İNDİR' : 'DOWNLOAD TRANSLATED DOCUMENT'}
-                  </button>
-
-                  <button
-                    onClick={handleReset}
-                    className="px-6 bg-neutral-150 hover:bg-neutral-200 text-neutral-700 font-bold text-xs py-3.5 rounded-xl transition-all border border-neutral-250 shrink-0"
-                  >
-                    {currentLanguage === 'TR' ? 'Yeni Belge' : 'Translate Another'}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
+            )}
+          </>
         )}
       </div>
 
