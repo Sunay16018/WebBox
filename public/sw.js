@@ -1,8 +1,12 @@
-const CACHE_NAME = 'webox-cache-v1';
+const CACHE_NAME = 'webox-cache-v2';
 const ASSETS = [
   '/',
   '/index.html',
-  '/manifest.json'
+  '/manifest.json',
+  '/logo.jpg',
+  '/logo.png',
+  '/logo-192.png',
+  '/logo-512.png'
 ];
 
 self.addEventListener('install', (event) => {
