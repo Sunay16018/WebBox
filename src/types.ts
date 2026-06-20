@@ -76,6 +76,8 @@ export interface TranslationSet {
   // Tool Titles & Descriptions
   toolDocTransTitle: string;
   toolDocTransDesc: string;
+  toolTextTransTitle?: string;
+  toolTextTransDesc?: string;
   toolFormatConvTitle: string;
   toolFormatConvDesc: string;
   toolPdfMergeTitle: string;
@@ -198,11 +200,18 @@ export interface ToolMetadata {
 export const TOOLS_LIST: ToolMetadata[] = [
   // Document Translation
   {
-    id: 'doc-translator',
+    id: 'text-translation',
+    category: 'doc',
+    translationTitleKey: 'toolTextTransTitle',
+    translationDescKey: 'toolTextTransDesc',
+    iconName: 'Languages'
+  },
+  {
+    id: 'document-translation',
     category: 'doc',
     translationTitleKey: 'toolDocTransTitle',
     translationDescKey: 'toolDocTransDesc',
-    iconName: 'Languages'
+    iconName: 'FileText'
   },
   // Format Converter
   {

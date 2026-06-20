@@ -22,7 +22,8 @@ import {
 
 import { Language, TranslationSet, TRANSLATIONS, TOOLS_LIST } from './types';
 import Header from './components/Header';
-import DocTranslator from './components/DocTranslator';
+import TextTranslation from './components/TextTranslation';
+import DocumentTranslation from './components/DocumentTranslation';
 import FormatConverter from './components/FormatConverter';
 import PdfMerge from './components/PdfMerge';
 import ImageToPdf from './components/ImageToPdf';
@@ -229,8 +230,10 @@ export default function App() {
   // Maps custom tool ID back to respective React component
   const renderSelectedTool = () => {
     switch (activeToolId) {
-      case 'doc-translator':
-        return <DocTranslator currentLanguage={currentLanguage} />;
+      case 'text-translation':
+        return <TextTranslation currentLanguage={currentLanguage} />;
+      case 'document-translation':
+        return <DocumentTranslation currentLanguage={currentLanguage} />;
       case 'format-converter':
         return <FormatConverter currentLanguage={currentLanguage} />;
       case 'pdf-merge':

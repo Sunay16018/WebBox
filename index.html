@@ -4,10 +4,20 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-M3Y17K5NFS"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-M3Y17K5NFS');
+    </script>
+    
     <!-- Production Meta Tags -->
     <title>WeBox - 100% Güvenli ve Tamamen Ücretsiz Dosya &amp; Medya Araç Kutusu</title>
     <meta name="description" content="WeBox, PDF birleştirme, görsel düzenleme, video ses çıkartma, belge çeviri ve filigran ekleme araçlarını sunucu yüklemeden tamamen cihazınızda çalıştırır." />
-    <meta name="keywords" content="pdf birleştirme, resim dönüştürücü, ses çıkarma, belge çeviri, filigran ekleme, pdf araçları, ücretsiz araçlar, çevrimdışı, webox" />
+    <meta name="keywords" content="pdf birleştirme, resim dönüştürücü, ses çıkarma, belge çeviri, filigran ekleme, pdf araçları, ücretsiz araçlar, webox" />
     <meta name="author" content="WeBox" />
     <meta name="robots" content="index, follow" />
     
@@ -39,22 +49,9 @@
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary" />
-    <meta property="twitter:title" content="WeBox - 100% Güvenli Çevrimdışı Araçlar" />
+    <meta property="twitter:title" content="WeBox - 100% Güvenli Araçlar" />
     <meta property="twitter:description" content="Dosyalarınız tarayıcınızdan asla ayrılmaz. Hızlı, güvenli ve ücretsiz." />
-
-    <!-- Service Worker registration for offline support -->
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').then((reg) => {
-            console.log('WeBox ServiceWorker registered successfully!');
-          }).catch((err) => {
-            console.log('WeBox ServiceWorker registration failed: ', err);
-          });
-        });
-      }
-    </script>
-
+    
     <!-- Structured Data JSON-LD for Google Rich Snippets -->
     <script type="application/ld+json">
       {
