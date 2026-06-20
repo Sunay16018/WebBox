@@ -142,10 +142,10 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
                   <div>
                     <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wide font-sans">E-Posta Adresimiz</h4>
                     <a 
-                      href="mailto:sunayseyidli01@gmail.com" 
+                      href="mailto:webox.info@proton.me" 
                       className="text-sm font-semibold text-neutral-800 hover:text-neutral-900 hover:underline"
                     >
-                      sunayseyidli01@gmail.com
+                      webox.info@proton.me
                     </a>
                   </div>
                 </div>
@@ -175,7 +175,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
                   </div>
                   <h4 className="font-bold text-neutral-900">Mesajınız İletildi!</h4>
                   <p className="text-xs text-neutral-500 leading-relaxed">
-                    Bizimle iletişime geçtiğiniz için teşekkür ederiz. Mesajınız başarıyla <strong className="text-neutral-800">sunayseyidli01@gmail.com</strong> adresine yönlendirilmiş olup, 24 saat içinde yanıt verilecektir.
+                    Bizimle iletişime geçtiğiniz için teşekkür ederiz. Mesajınız başarıyla <strong className="text-neutral-800">webox.info@proton.me</strong> adresine yönlendirilmiş olup, 24 saat içinde yanıt verilecektir.
                   </p>
                   <button 
                     onClick={() => setSentSuccess(false)}
@@ -301,7 +301,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
             <section className="space-y-2">
               <h3 className="text-sm font-bold text-neutral-900 uppercase tracking-wide">5. İletişim</h3>
               <p>
-                Gizlilik politikamız ile ilgili bilgi edinmek veya sorularınızı paylaşmak isterseniz bizimle her zaman <strong className="text-neutral-800">sunayseyidli01@gmail.com</strong> e-posta adresi üzerinden irtibata geçebilirsiniz.
+                Gizlilik politikamız ile ilgili bilgi edinmek veya sorularınızı paylaşmak isterseniz bizimle her zaman <strong className="text-neutral-800">webox.info@proton.me</strong> e-posta adresi üzerinden irtibata geçebilirsiniz.
               </p>
             </section>
           </div>
@@ -348,7 +348,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
             <section className="space-y-2">
               <h3 className="text-sm font-bold text-neutral-900">İletişim</h3>
-              <p>Sorularınız için bizimle <strong className="text-neutral-800">sunayseyidli01@gmail.com</strong> adresinden irtibat kurabilirsiniz.</p>
+              <p>Sorularınız için bizimle <strong className="text-neutral-800">webox.info@proton.me</strong> adresinden irtibat kurabilirsiniz.</p>
             </section>
           </div>
         </PageWrapper>
@@ -418,7 +418,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
                 },
                 {
                   q: "5. Destek almak için kiminle iletişim kurabilirim?",
-                  a: "Tüm sorularınız, reklam talepleriniz veya hata bildirimleriniz için WeBox ekibine doğrudan aktif resmi mail adresimiz olan sunayseyidli01@gmail.com üzerinden veya İletişim sayfasındaki form aracılığıyla ulaşabilirsiniz."
+                  a: "Tüm sorularınız, reklam talepleriniz veya hata bildirimleriniz için WeBox ekibine doğrudan aktif resmi mail adresimiz olan webox.info@proton.me üzerinden veya İletişim sayfasındaki form aracılığıyla ulaşabilirsiniz."
                 }
               ].map((item, i) => (
                 <div 

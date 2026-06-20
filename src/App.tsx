@@ -62,7 +62,7 @@ export default function App() {
           break;
         case '/iletisim':
           title = "WeBox İletişim | Sorularınız ve Destek Talepleri";
-          desc = "WeBox geliştirici ekibi ve kurucusu ile iletişime geçin. sunayseyidli01@gmail.com aktif e-posta adresi ve güvenli iletişim formumuz.";
+          desc = "WeBox geliştirici ekibi ve kurucusu ile iletişime geçin. webox.info@proton.me aktif e-posta adresi ve güvenli iletişim formumuz.";
           break;
         case '/gizlilik-politikasi':
           title = "Gizlilik Politikası (Privacy Policy) | WeBox Resmi Sözleşmesi";
