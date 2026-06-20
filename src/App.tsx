@@ -16,7 +16,8 @@ import {
   Zap, 
   CheckCircle,
   HelpCircle,
-  FolderOpen
+  FolderOpen,
+  X
 } from 'lucide-react';
 
 import { Language, TranslationSet, TRANSLATIONS, TOOLS_LIST } from './types';
@@ -48,6 +49,40 @@ export default function App() {
     return infoPaths.includes(p) ? p : null;
   });
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
+
+  // PWA Installation states & hooks
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [showPwaHelpModal, setShowPwaHelpModal] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      console.log('beforeinstallprompt registered inside WeBox core engine.');
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
+  }, []);
+
+  const handleInstallAppClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      try {
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User prompt outcome: ${outcome}`);
+      } catch (err) {
+        console.error('Error triggered during user Choice:', err);
+      }
+      setDeferredPrompt(null);
+    } else {
+      // Prompt not supported natively (e.g. iOS or cached state) -> Show awesome helpful detailed modal
+      setShowPwaHelpModal(true);
+    }
+  };
 
   // Dynamic Title and SEO Meta Description management for Google Indexing & AdSense Approval
   useEffect(() => {
@@ -242,6 +277,7 @@ export default function App() {
         onLanguageChange={handleLanguageChange}
         activeToolId={activeToolId}
         onSelectTool={handleSelectTool}
+        onInstallClick={handleInstallAppClick}
       />
 
       {/* Main Container Area */}
@@ -500,6 +536,114 @@ export default function App() {
 
         </div>
       </footer>
+
+      {/* PWA Fallback Instruction Modal */}
+      <AnimatePresence>
+        {showPwaHelpModal && (
+          <motion.div
+            id="pwa-help-modal"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, y: 15 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 15 }}
+              className="bg-white border border-neutral-100 max-w-md w-full rounded-2xl shadow-2xl overflow-hidden flex flex-col"
+            >
+              <div className="p-6 border-b border-neutral-100 flex items-center justify-between">
+                <div>
+                  <h3 className="font-sans font-bold text-lg text-neutral-900">
+                    {currentLanguage === 'TR' ? '📱 weBox Ana Ekrana Ekle' : currentLanguage === 'AZ' ? '📱 weBox Əsas Ekrana Əlavə Et' : '📱 Install weBox'}
+                  </h3>
+                  <p className="text-xs text-neutral-500 font-sans mt-1">
+                    {currentLanguage === 'TR' ? 'Her zaman aktif, çevrimdışı ve uygulama gibi çalışır!' : currentLanguage === 'AZ' ? 'Həmişə aktiv, oflayn və proqram kimi işləyir!' : 'Always active, offline & works just like a native app!'}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setShowPwaHelpModal(false)}
+                  className="p-1.5 hover:bg-neutral-50 active:bg-neutral-100 rounded-lg transition-colors border border-transparent hover:border-neutral-200"
+                >
+                  <X className="w-4 h-4 text-neutral-500" />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-6 font-sans text-sm text-neutral-700 max-h-[70vh] overflow-y-auto">
+                {/* iOS Instructions */}
+                <div className="space-y-3">
+                  <h4 className="font-bold text-neutral-900 flex items-center gap-2">
+                    🍎 Apple iOS (iPhone/iPad)
+                  </h4>
+                  <ul className="space-y-2 text-xs text-neutral-600 pl-4 list-decimal leading-relaxed">
+                    <li>
+                      {currentLanguage === 'TR' 
+                        ? 'Safari tarayıcısında ekranın altındaki Paylaş butonuna dokunun.' 
+                        : currentLanguage === 'AZ' 
+                          ? 'Safari brauzerində ekranın aşağısındakı Paylaş düyməsinə toxunun.' 
+                          : 'Tap the Share button at the bottom of the screen in Safari.'}
+                    </li>
+                    <li>
+                      {currentLanguage === 'TR' 
+                        ? 'Açılan seçeneklerden aşağı kaydırıp Ana Ekrana Ekle seçeneğini bulun.' 
+                        : currentLanguage === 'AZ' 
+                          ? 'Açılan seçimlərdən aşağı düşərək Əsas Ekrana Əlavə Et seçimini tapın.' 
+                          : 'Scroll down and select Add to Home Screen.'}
+                    </li>
+                    <li>
+                      {currentLanguage === 'TR'
+                        ? 'Ekle butonuna basarak weBox uygulamasını telefonunuza kurun.'
+                        : currentLanguage === 'AZ'
+                          ? 'Əlavə Et düyməsinə klikləyərək weBox proqramını quraşdırın.'
+                          : 'Confirm by pressing Add to install weBox to your device.'}
+                    </li>
+                  </ul>
+                </div>
+
+                {/* Android & Desktop Chrome */}
+                <div className="space-y-3 border-t border-neutral-100 pt-5">
+                  <h4 className="font-bold text-neutral-900 flex items-center gap-2">
+                    🤖 Android & Desktop (Chrome / Edge)
+                  </h4>
+                  <ul className="space-y-2 text-xs text-neutral-600 pl-4 list-decimal leading-relaxed">
+                    <li>
+                      {currentLanguage === 'TR'
+                        ? 'Adres çubuğu veya tarayıcınızın sağ üstündeki 3 noktaya (...) dokunun.'
+                        : currentLanguage === 'AZ'
+                          ? 'Ünvan sətri və ya brauzerinizin sağ üstündəki 3 nöqtəyə (...) toxunun.'
+                          : 'Tap the three-dots menu (...) in Chrome or Edge.'}
+                    </li>
+                    <li>
+                      {currentLanguage === 'TR'
+                        ? '"Uygulamayı yükle" ya da "Ana ekrana ekle" seçeneğini seçin.'
+                        : currentLanguage === 'AZ'
+                          ? '"Proqramı quraşdır" və ya "Əsas ekrana əlavə et" seçimini edin.'
+                          : 'Select "Install app" or "Add to Home Screen".'}
+                    </li>
+                    <li>
+                      {currentLanguage === 'TR'
+                        ? 'Çıkan pencerede onaylayarak yüklemeyi tamamlayın.'
+                        : currentLanguage === 'AZ'
+                          ? 'Ekrana çıxan pəncərədə təsdiqləyərək quraşdırmanı tamamlayın.'
+                          : 'Confirm the installation in the pop-up.'}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="p-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-end">
+                <button
+                  onClick={() => setShowPwaHelpModal(false)}
+                  className="px-4 py-2 bg-neutral-900 text-white hover:bg-neutral-800 text-xs font-semibold rounded-lg transition-colors"
+                >
+                  {currentLanguage === 'TR' ? 'Tamam' : currentLanguage === 'AZ' ? 'Anladım' : 'Got it'}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

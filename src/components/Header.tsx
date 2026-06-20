@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Languages, Globe, ShieldCheck, Heart, Cpu } from 'lucide-react';
+import { Menu, X, Languages, Globe, ShieldCheck, Heart, Cpu, Download } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Language, TranslationSet, TRANSLATIONS, TOOLS_LIST, ToolCategory, SITE_LANGUAGES } from '../types';
 
@@ -8,13 +8,15 @@ interface HeaderProps {
   onLanguageChange: (lang: Language) => void;
   activeToolId: string | null;
   onSelectTool: (id: string | null) => void;
+  onInstallClick: () => void;
 }
 
 export default function Header({
   currentLanguage,
   onLanguageChange,
   activeToolId,
-  onSelectTool
+  onSelectTool,
+  onInstallClick
 }: HeaderProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const t: TranslationSet = TRANSLATIONS[currentLanguage];
@@ -79,6 +81,17 @@ export default function Header({
 
         {/* Language Selection Bar */}
         <div className="flex items-center gap-2 flex-shrink-0">
+          <button
+            onClick={onInstallClick}
+            className="flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 hover:scale-[1.02] border border-emerald-700 text-white text-xs font-semibold px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-lg transition-all shadow-sm shrink-0 font-sans active:scale-95"
+            title="Install WeBox Application"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span className="hidden xs:inline">
+              {currentLanguage === 'TR' ? 'Uygulamayı Yükle' : currentLanguage === 'AZ' ? 'Yüklə' : 'Install'}
+            </span>
+          </button>
+
           <div className="relative group/lang flex items-center bg-neutral-50 hover:bg-neutral-100/80 border border-neutral-100 px-1.5 sm:px-2.5 py-1 sm:py-1.5 rounded-lg transition-all">
             <Languages className="w-3.5 h-3.5 text-neutral-500 mr-1 sm:mr-2 hidden sm:inline" />
             <select
@@ -187,7 +200,20 @@ export default function Header({
               </div>
 
               {/* Footer inside sidebar */}
-              <div className="p-6 border-t border-neutral-100 bg-neutral-50/50 flex flex-col gap-2">
+              <div className="p-6 border-t border-neutral-100 bg-neutral-50/50 flex flex-col gap-3">
+                <button
+                  onClick={() => {
+                    setIsSidebarOpen(false);
+                    onInstallClick();
+                  }}
+                  className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl flex items-center justify-center gap-2 text-xs transition-all shadow-sm hover:scale-[1.01] active:scale-95"
+                >
+                  <Download className="w-4 h-4 text-emerald-100" />
+                  <span>
+                    {currentLanguage === 'TR' ? 'WeBox Uygulamasını Yükle' : currentLanguage === 'AZ' ? 'WeBox Proqramını Quraşdır' : 'Install WeBox App'}
+                  </span>
+                </button>
+
                 <div className="flex items-center justify-between text-xs text-neutral-400 font-mono">
                   <span>SANDBOX COMPLIANT</span>
                   <span>v2.1.0</span>
