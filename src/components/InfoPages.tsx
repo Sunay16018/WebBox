@@ -496,78 +496,87 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
                   <Compass className="w-4 h-4 text-neutral-800" />
                   Kullanışlı Araçlar Listesi
                 </h3>
-                <ul className="space-y-2 text-xs font-semibold text-neutral-500">
+                <ul className="space-y-2 text-xs font-semibold text-neutral-500 flex flex-col">
                   <li>
-                    <button 
-                      onClick={() => onNavigate('doc-translator')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=doc-translator" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('doc-translator'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       📄 Belge Çeviricisi (Document Translator)
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('format-converter')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=format-converter" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('format-converter'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       🔄 Evrensel Format Dönüştürücü
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('pdf-merge')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=pdf-merge" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('pdf-merge'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       📕 PDF Dosyası Birleştirme (PDF Merger)
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('image-to-pdf')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=image-to-pdf" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('image-to-pdf'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       🖼️ Resimden Özel PDF Dosyası Yapıcı
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('pdf-meta')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=pdf-meta" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('pdf-meta'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       ⚡ PDF Metadata Yazıcı ve Güvenlik Kilidi
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('video-audio')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=video-audio" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('video-audio'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       🎵 Videodan Kaliteli Ses Çıkarıcı
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('media-cutter')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=media-cutter" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('media-cutter'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       ✂️ Hassas Ses ve Medya Kırpıcı
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('batch-resizer')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=batch-resizer" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('batch-resizer'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       📦 Toplu Çoklu Görsel Yeniden Boyutlayıcı
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('image-watermark')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/?tool=image-watermark" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('image-watermark'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       🎨 Resimlere Filigran Ekleme Standardı
-                    </button>
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -577,62 +586,69 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
                   <Scale className="w-4 h-4 text-neutral-800" />
                   Kurumsal ve AdSense Sayfaları
                 </h3>
-                <ul className="space-y-2 text-xs font-semibold text-neutral-500">
+                <ul className="space-y-2 text-xs font-semibold text-neutral-500 flex flex-col">
                   <li>
-                    <button 
-                      onClick={() => onNavigate('/hakkimizda')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/hakkimizda" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('/hakkimizda'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       Hakkımızda Sayfası
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('/iletisim')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/iletisim" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('/iletisim'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       İletişim ve Destek Bölümü
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('/gizlilik-politikasi')}
-                      className="hover:text-neutral-900 transition-colors hover:underline font-bold text-neutral-900"
+                    <a 
+                      href="/gizlilik-politikasi" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('/gizlilik-politikasi'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5 font-bold text-neutral-900"
                     >
                       Gizlilik Politikası (Privacy Policy)
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('/kullanim-sartlari')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/kullanim-sartlari" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('/kullanim-sartlari'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       Kullanım Şartları (Terms of Use)
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('/cerez-politikasi')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/cerez-politikasi" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('/cerez-politikasi'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       Çerez Politikası (Cookie Policy)
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('/sss')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/sss" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('/sss'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       Sıkça Sorulan Sorular (F.A.Q.)
-                    </button>
+                    </a>
                   </li>
                   <li>
-                    <button 
-                      onClick={() => onNavigate('/topluluk-kurallari')}
-                      className="hover:text-neutral-900 transition-colors hover:underline"
+                    <a 
+                      href="/topluluk-kurallari" 
+                      onClick={(e) => { e.preventDefault(); onNavigate('/topluluk-kurallari'); }}
+                      className="hover:text-neutral-900 transition-colors hover:underline inline-block py-0.5"
                     >
                       Topluluk ve Ahlak Kuralları
-                    </button>
+                    </a>
                   </li>
                 </ul>
               </div>
