@@ -107,7 +107,10 @@ const vocabDict: Record<string, Record<string, string>> = {
     "coffee": "kahve", "father": "baba", "mother": "anne", "work": "iş", "do": "yap", "go": "git", "come": "gel", "see": "gör",
     "write": "yaz", "read": "oku", "speak": "konuş", "i": "ben", "you": "sen", "he": "o", "we": "biz", "they": "onlar",
     "today": "bugün", "tomorrow": "yarın", "clock": "saat", "please": "lütfen", "welcome": "hoş geldiniz",
-    "cat": "kedi", "dog": "köpek", "big": "büyük", "small": "küçük", "hot": "sıcak", "cold": "soğuk", "fast": "hızlı", "slow": "yavaş"
+    "cat": "kedi", "dog": "köpek", "big": "büyük", "small": "küçük", "hot": "sıcak", "cold": "soğuk", "fast": "hızlı", "slow": "yavaş",
+    "school": "okul", "teacher": "öğretmen", "car": "araba", "where": "nerede", "house": "ev", "room": "oda",
+    "family": "aile", "city": "şehir", "name": "isim", "street": "sokak", "money": "para", "time": "zaman",
+    "brother": "kardeş", "sister": "bacı", "life": "hayat", "food": "yemek", "road": "yol"
   },
   EN: {
     "hello": "hello", "hi": "hi", "thanks": "thanks", "friend": "friend", "world": "world", "computer": "computer", "file": "file",
@@ -118,7 +121,10 @@ const vocabDict: Record<string, Record<string, string>> = {
     "coffee": "coffee", "father": "father", "mother": "mother", "work": "work", "do": "do", "go": "go", "come": "come", "see": "see",
     "write": "write", "read": "read", "speak": "speak", "i": "i", "you": "you", "he": "he", "we": "we", "they": "they",
     "today": "today", "tomorrow": "tomorrow", "clock": "clock", "please": "please", "welcome": "welcome",
-    "cat": "cat", "dog": "dog", "big": "big", "small": "small", "hot": "hot", "cold": "cold", "fast": "fast", "slow": "slow"
+    "cat": "cat", "dog": "dog", "big": "big", "small": "small", "hot": "hot", "cold": "cold", "fast": "fast", "slow": "slow",
+    "school": "school", "teacher": "teacher", "car": "car", "where": "where", "house": "house", "room": "room",
+    "family": "family", "city": "city", "name": "name", "street": "street", "money": "money", "time": "time",
+    "brother": "brother", "sister": "sister", "life": "life", "food": "food", "road": "road"
   },
   AZ: {
     "hello": "salam", "hi": "salam", "thanks": "təşəkkürlər", "friend": "dost", "world": "dünya", "computer": "kompüter", "file": "fayl",
@@ -129,7 +135,10 @@ const vocabDict: Record<string, Record<string, string>> = {
     "coffee": "qəhvə", "father": "ata", "mother": "ana", "work": "iş", "do": "etmək", "go": "getmək", "come": "gəlmək", "see": "görmək",
     "write": "yazmaq", "read": "oxumaq", "speak": "danışmaq", "i": "mən", "you": "sən", "he": "o", "we": "biz", "they": "onlar",
     "today": "bugün", "tomorrow": "sabah", "clock": "saat", "please": "zəhmət olmasa", "welcome": "xoş gəlmisiniz",
-    "cat": "pişik", "dog": "it", "big": "böyük", "small": "kiçik", "hot": "isti", "cold": "soyuq", "fast": "sürətli", "slow": "yavaş"
+    "cat": "pişik", "dog": "it", "big": "böyük", "small": "kiçik", "hot": "isti", "cold": "soyuq", "fast": "sürətli", "slow": "yavaş",
+    "school": "məktəb", "teacher": "müəllim", "car": "maşın", "where": "harada", "house": "ev", "room": "otaq",
+    "family": "ailə", "city": "şəhər", "name": "ad", "street": "küçə", "money": "pul", "time": "zaman",
+    "brother": "qardaş", "sister": "bacı", "life": "həyat", "food": "yemək", "road": "yol"
   },
   ES: {
     "hello": "hola", "friend": "amigo", "world": "mundo", "computer": "computadora", "file": "archivo",
@@ -295,6 +304,7 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
   const [isTranslatingText, setIsTranslatingText] = useState(false);
   const [copiedInput, setCopiedInput] = useState(false);
   const [copiedOutput, setCopiedOutput] = useState(false);
+  const [fallbackStrategy, setFallbackStrategy] = useState<'original' | 'pseudo'>('original');
 
   // File translation states
   const [file, setFile] = useState<File | null>(null);
@@ -447,43 +457,121 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
           if (['tamam', 'okey', 'yep', 'peki'].includes(lower)) lower = 'evet';
           if (['hayir', 'yok', 'asla'].includes(lower)) lower = 'hayır';
         }
-        
-        let englishWord = lower;
+
+        let stem = lower;
+        let suffix = '';
         let isTranslated = false;
         
-        // Find English Word equivalent
-        if (from !== 'EN') {
-          const found = Object.entries(fromDict).find(([_, localizedVal]) => localizedVal.toLowerCase() === lower);
-          if (found) {
-            englishWord = found[0];
+        // Find stem and suffix for TR / AZ
+        if (from === 'TR' || from === 'AZ') {
+          // Check exact match first
+          const exactFound = Object.entries(fromDict).find(([_, val]) => val.toLowerCase() === lower);
+          if (exactFound) {
+            stem = lower;
             isTranslated = true;
+          } else {
+            // Suffix checking
+            const suffixesList = [
+              'lar', 'ler', 'lər', 'ın', 'in', 'un', 'ün', 'da', 'de', 'ta', 'te', 
+              'dan', 'den', 'dən', 'ı', 'i', 'u', 'ü', 'sın', 'sin', 'sun', 'sün',
+              'mın', 'min', 'mun', 'mün', 'la', 'le', 'lə', 'ya', 'ye', 'yə', 'yı', 'yi', 'yu', 'yü'
+            ];
+            for (const suf of suffixesList) {
+              if (lower.endsWith(suf) && lower.length > suf.length + 2) {
+                const testStem = lower.slice(0, -suf.length);
+                const foundInDict = Object.entries(fromDict).find(([_, val]) => val.toLowerCase() === testStem);
+                if (foundInDict) {
+                  stem = testStem;
+                  suffix = suf;
+                  isTranslated = true;
+                  break;
+                }
+              }
+            }
           }
-        } else {
-          isTranslated = true;
         }
 
-        // Map English Word to Target Lang word
+        let englishWord = stem;
+        
+        // Convert localized stem to English pivot
+        if (isTranslated) {
+          if (from !== 'EN') {
+            const found = Object.entries(fromDict).find(([_, val]) => val.toLowerCase() === stem);
+            if (found) {
+              englishWord = found[0];
+            }
+          }
+        } else {
+          // Check if EN input is direct
+          if (from === 'EN') {
+            isTranslated = true;
+          }
+        }
+
         let targetWord = englishWord;
+        let targetSuffix = '';
+
         if (to !== 'EN') {
           if (isTranslated && toDict[englishWord]) {
             targetWord = toDict[englishWord];
+            
+            // Map prefix/suffix if applicable
+            if (suffix) {
+              if (from === 'TR' && to === 'AZ') {
+                const trToAzSuf: Record<string, string> = {
+                  'lar': 'lar', 'ler': 'lər', 'lər': 'lər',
+                  'ın': 'ın', 'in': 'in', 'un': 'un', 'ün': 'ün',
+                  'da': 'da', 'de': 'də', 'ta': 'da', 'te': 'də',
+                  'dan': 'dan', 'den': 'dən', 'tan': 'dan', 'ten': 'dən',
+                  'ı': 'ı', 'i': 'i', 'u': 'u', 'ü': 'ü',
+                  'sın': 'sən', 'sin': 'sən', 'sun': 'san', 'sün': 'sən',
+                  'la': 'la', 'le': 'lə'
+                };
+                targetSuffix = trToAzSuf[suffix] || '';
+              } else if (from === 'AZ' && to === 'TR') {
+                const azToTrSuf: Record<string, string> = {
+                  'lar': 'lar', 'lər': 'ler', 'ler': 'ler',
+                  'ın': 'ın', 'in': 'in', 'un': 'un', 'ün': 'ün',
+                  'da': 'da', 'də': 'de',
+                  'dan': 'dan', 'dən': 'den',
+                  'ı': 'ı', 'i': 'i', 'u': 'u', 'ü': 'ü',
+                  'san': 'sun', 'sən': 'sin',
+                  'la': 'la', 'lə': 'le'
+                };
+                targetSuffix = azToTrSuf[suffix] || '';
+              }
+            }
           } else {
-            // Apply high-fidelity consistent pseudo-translation generator
-            targetWord = generatePseudoTranslation(lower, to);
+            if (fallbackStrategy === 'original') {
+              targetWord = lower;
+            } else {
+              targetWord = generatePseudoTranslation(lower, to);
+            }
           }
         } else {
-          // Translate English to english or fallback
-          if (!isTranslated || englishWord === lower) {
-            // If translating from e.g. TR to EN and not in dictionary, generate pseudo English word
-            targetWord = generatePseudoTranslation(lower, 'EN');
+          // Target is English
+          if (!isTranslated || englishWord === stem) {
+            if (fallbackStrategy === 'original') {
+              targetWord = lower;
+            } else {
+              targetWord = generatePseudoTranslation(lower, 'EN');
+            }
+          } else {
+            // Suffix mapping for English (e.g. plural)
+            if (suffix && (suffix === 'lar' || suffix === 'ler' || suffix === 'lər')) {
+              targetSuffix = 's';
+            }
           }
         }
 
+        // Combine translated stem and mapped suffix
+        let finalWord = targetWord + targetSuffix;
+
         // Preserve case safely
         if (chunk[0] && chunk[0] === chunk[0].toUpperCase()) {
-          return targetWord.charAt(0).toUpperCase() + targetWord.slice(1);
+          return finalWord.charAt(0).toUpperCase() + finalWord.slice(1);
         }
-        return targetWord;
+        return finalWord;
       }
       return chunk;
     });
@@ -756,6 +844,43 @@ export default function DocTranslator({ currentLanguage }: DocTranslatorProps) {
                 </option>
               ))}
             </select>
+          </div>
+        </div>
+
+        {/* Offline Fallback Configuration Options */}
+        <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-3">
+          <div className="space-y-0.5">
+            <span className="text-[11px] font-extrabold text-neutral-800 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 fill-amber-500 animate-pulse" />
+              {currentLanguage === 'TR' ? 'Çevrimdışı Lügat / Çeviri Modu' : 'Offline Lexicon / Playback'}
+            </span>
+            <p className="text-[10px] text-neutral-500 font-medium">
+              {currentLanguage === 'TR' 
+                ? 'İnternet bulunmadığında sözlüğü kullanan güvenli cihaz-içi çeviri modunu yönetin.' 
+                : 'Toggle how unrecognized offline words are translated when internet is disconnected.'}
+            </p>
+          </div>
+          <div className="flex gap-2 w-full md:w-auto">
+            <button
+              onClick={() => setFallbackStrategy('original')}
+              className={`flex-1 md:flex-none px-3 py-1.5 text-[10px] font-extrabold rounded-xl transition-all border ${
+                fallbackStrategy === 'original'
+                  ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
+                  : 'bg-white hover:bg-neutral-100 text-neutral-600 border-neutral-200'
+              }`}
+            >
+              {currentLanguage === 'TR' ? 'Orijinalini Koru (Aynen Bırak)' : 'Keep Original Word'}
+            </button>
+            <button
+              onClick={() => setFallbackStrategy('pseudo')}
+              className={`flex-1 md:flex-none px-3 py-1.5 text-[10px] font-extrabold rounded-xl transition-all border ${
+                fallbackStrategy === 'pseudo'
+                  ? 'bg-neutral-900 text-white border-neutral-900 shadow-sm'
+                  : 'bg-white hover:bg-neutral-100 text-neutral-600 border-neutral-200'
+              }`}
+            >
+              {currentLanguage === 'TR' ? 'Temsili Çeviri (Sesli Üret)' : 'Phonetic fallback'}
+            </button>
           </div>
         </div>
 
