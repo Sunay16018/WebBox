@@ -48,13 +48,7 @@ async function run() {
     'icon-512.png'
   ];
 
-  // Check if we already have the files and can skip downloading (only in development)
-  const allFilesExist = filesToSave.every(file => fs.existsSync(path.join(publicDir, file)));
-  if (allFilesExist && process.env.NODE_ENV !== 'production' && !process.env.FORCE_DOWNLOAD) {
-    console.log('[Asset Downloader] All dynamic logo and favicon assets exist locally. Skipping download.');
-    return;
-  }
-
+  // Force write assets to ensure they are committed to GitHub
   console.log(`[Asset Downloader] Fetching dynamic theme assets from: ${logoUrl}...`);
   try {
     const buffer = await downloadImage(logoUrl);

@@ -7,9 +7,3 @@ coverage/
 .env*
 !.env.example
 
-# Dynamic logo and icon assets (downloaded on-the-fly at build/dev time)
-public/logo.png
-public/logo.jpg
-public/favicon.ico
-public/icon-192.png
-public/icon-512.png
