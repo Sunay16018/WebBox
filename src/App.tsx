@@ -78,19 +78,64 @@ export default function App() {
   });
 
   const [activeToolId, setActiveToolId] = useState<string | null>(() => {
-    const p = window.location.pathname;
+    let p = window.location.pathname;
+    
+    // Parse query params or hash fallbacks for seamless URL redirection to avoid 404s
+    const params = new URLSearchParams(window.location.search);
+    const queryP = params.get('p') || params.get('path');
+    const hash = window.location.hash;
+    
+    if (queryP) {
+      p = queryP;
+    } else if (hash && hash.startsWith('#/')) {
+      p = hash.substring(1);
+    } else if (hash && hash.startsWith('#') && !hash.includes('/')) {
+      p = '/' + hash.substring(1);
+    }
+
     if (PATH_TO_TOOL_MAP[p]) {
+      if (window.location.pathname !== p) {
+        window.history.replaceState({}, '', p);
+      }
       return PATH_TO_TOOL_MAP[p];
     }
-    const params = new URLSearchParams(window.location.search);
+    
     const queryTool = params.get('tool');
-    if (queryTool === 'doc-translator') return 'document-translation';
-    return queryTool;
+    if (queryTool) {
+      const toolId = queryTool === 'doc-translator' ? 'document-translation' : queryTool;
+      const targetPath = TOOL_TO_PATH_MAP[toolId];
+      if (targetPath && window.location.pathname !== targetPath) {
+        window.history.replaceState({}, '', targetPath);
+      }
+      return toolId;
+    }
+    return null;
   });
+
   const [activePath, setActivePath] = useState<string | null>(() => {
-    const p = window.location.pathname;
+    let p = window.location.pathname;
+    
+    // Parse query params or hash fallbacks for seamless URL redirection to avoid 404s
+    const params = new URLSearchParams(window.location.search);
+    const queryP = params.get('p') || params.get('path');
+    const hash = window.location.hash;
+    
+    if (queryP) {
+      p = queryP;
+    } else if (hash && hash.startsWith('#/')) {
+      p = hash.substring(1);
+    } else if (hash && hash.startsWith('#') && !hash.includes('/')) {
+      p = '/' + hash.substring(1);
+    }
+
     const infoPaths = ['/hakkimizda', '/iletisim', '/gizlilik-politikasi', '/kullanim-sartlari', '/cerez-politikasi', '/sss', '/topluluk-kurallari', '/site-haritasi'];
-    return infoPaths.includes(p) ? p : null;
+    if (infoPaths.includes(p)) {
+      if (window.location.pathname !== p) {
+        window.history.replaceState({}, '', p);
+      }
+      return p;
+    }
+    return null;
   });
   const [expandedFaq, setExpandedFaq] = useState<number | null>(null);
 
