@@ -51,6 +51,7 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
   const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
   const [isSending, setIsSending] = useState(false);
   const [sentSuccess, setSentSuccess] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // FAQ accordion state
   const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({
@@ -61,16 +62,41 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
     setFaqOpen(prev => ({ ...prev, [index]: !prev[index] }));
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !formData.email || !formData.message) return;
     
     setIsSending(true);
-    setTimeout(() => {
+    setErrorMessage(null);
+
+    try {
+      const response = await fetch("https://formsubmit.co/ajax/webox.info@proton.me", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          _subject: formData.subject ? `WeBox Destek: ${formData.subject}` : "WeBox İletişim Formu",
+          message: formData.message
+        })
+      });
+
+      if (response.ok) {
+        setSentSuccess(true);
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        const data = await response.json();
+        throw new Error(data.message || "Mesaj gönderilemedi. Lütfen webox.info@proton.me adresini deneyin.");
+      }
+    } catch (err: any) {
+      console.error("Form transmission error:", err);
+      setErrorMessage(err.message || "E-posta gönderilirken bir ağ hatası oluştu. Lütfen webox.info@proton.me e-posta adresine doğrudan yazmayı deneyiniz.");
+    } finally {
       setIsSending(false);
-      setSentSuccess(true);
-      setFormData({ name: '', email: '', subject: '', message: '' });
-    }, 1200);
+    }
   };
 
   const handleBackToHome = () => {
@@ -185,6 +211,16 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
                 </motion.div>
               ) : (
                 <form onSubmit={handleContactSubmit} className="space-y-4">
+                  {errorMessage && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: -4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-3 bg-rose-50 border border-rose-100 rounded-xl text-rose-800 text-xs leading-relaxed font-semibold flex items-start gap-2"
+                    >
+                      <span className="flex-shrink-0">⚠️</span>
+                      <span>{errorMessage}</span>
+                    </motion.div>
+                  )}
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="space-y-1">
                       <label className="text-[11px] font-bold text-neutral-500 uppercase tracking-wide">Adınız Soyadınız *</label>
