@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { 
   ShieldCheck, 
@@ -53,6 +53,45 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
   const [sentSuccess, setSentSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  // Cooldown / daily limit check (1 submission every 24 hours per user)
+  const [lastSubmitTime, setLastSubmitTime] = useState<number | null>(() => {
+    const saved = localStorage.getItem('webox_last_submit_time');
+    return saved ? parseInt(saved, 10) : null;
+  });
+  const [timeNow, setTimeNow] = useState(Date.now());
+
+  useEffect(() => {
+    if (!lastSubmitTime) return;
+    const interval = setInterval(() => {
+      setTimeNow(Date.now());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lastSubmitTime]);
+
+  const isCooldown = useMemo(() => {
+    if (!lastSubmitTime) return false;
+    const dayInMs = 24 * 60 * 60 * 1000;
+    return timeNow - lastSubmitTime < dayInMs;
+  }, [lastSubmitTime, timeNow]);
+
+  const remainingText = useMemo(() => {
+    if (!lastSubmitTime) return '';
+    const dayInMs = 24 * 60 * 60 * 1000;
+    const diff = dayInMs - (timeNow - lastSubmitTime);
+    if (diff <= 0) return '';
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+    
+    const parts = [];
+    if (hours > 0) parts.push(`${hours} saat`);
+    if (minutes > 0) parts.push(`${minutes} dakika`);
+    if (seconds > 0) parts.push(`${seconds} saniye`);
+    
+    return parts.join(' ');
+  }, [lastSubmitTime, timeNow]);
+
   // FAQ accordion state
   const [faqOpen, setFaqOpen] = useState<Record<number, boolean>>({
     0: true, // open first by default
@@ -64,13 +103,17 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
   const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isCooldown) {
+      setErrorMessage("Günlük iletişim form limitini aştınız. Lütfen kalan sürenin bitmesini bekleyin.");
+      return;
+    }
     if (!formData.name || !formData.email || !formData.message) return;
     
     setIsSending(true);
     setErrorMessage(null);
 
     try {
-      const response = await fetch("https://formsubmit.co/ajax/webox.info@proton.me", {
+      const response = await fetch("https://formsubmit.co/ajax/6bde8c8e7b2f244bb606cf22ea004fcd", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -79,12 +122,16 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,
+          _replyto: formData.email,
           _subject: formData.subject ? `WeBox Destek: ${formData.subject}` : "WeBox İletişim Formu",
           message: formData.message
         })
       });
 
       if (response.ok) {
+        const now = Date.now();
+        localStorage.setItem('webox_last_submit_time', now.toString());
+        setLastSubmitTime(now);
         setSentSuccess(true);
         setFormData({ name: '', email: '', subject: '', message: '' });
       } else {
@@ -189,7 +236,27 @@ export default function InfoPages({ pagePath, onNavigate, currentLanguage }: Inf
 
             <div className="md:col-span-7 bg-neutral-50 rounded-2xl border border-neutral-100 p-6 sm:p-8 space-y-4">
               <h3 className="text-base font-bold text-neutral-900 tracking-tight">İletişim Formu</h3>
-              {sentSuccess ? (
+              {isCooldown && !sentSuccess ? (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="bg-white border border-neutral-200 rounded-xl p-6 text-center space-y-3"
+                >
+                  <div className="inline-flex p-3 bg-amber-50 rounded-full text-amber-600">
+                    <span className="text-2xl">⏳</span>
+                  </div>
+                  <h4 className="font-bold text-neutral-900">Günlük Gönderim Limiti</h4>
+                  <p className="text-xs text-neutral-500 leading-relaxed max-w-sm mx-auto">
+                    WeBox platform güvenliği ve kötüye kullanımı engellemek amacıyla, her kullanıcı günde sadece <strong className="text-neutral-800">1 adet</strong> destek formu gönderebilir.
+                  </p>
+                  <div className="bg-neutral-50 px-4 py-2.5 rounded-xl border border-neutral-100 text-xs text-neutral-600 font-mono tracking-tight max-w-xs mx-auto">
+                    Kalan Süre: <span className="font-bold text-neutral-900">{remainingText}</span>
+                  </div>
+                  <p className="text-[11px] text-neutral-400">
+                    Acil sorularınız veya teknik destek için doğrudan <a href="mailto:webox.info@proton.me" className="text-neutral-600 underline hover:text-neutral-950 font-semibold transition-colors">webox.info@proton.me</a> adresine e-posta yazabilirsiniz.
+                  </p>
+                </motion.div>
+              ) : sentSuccess ? (
                 <motion.div 
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}

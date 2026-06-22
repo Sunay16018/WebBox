@@ -223,6 +223,13 @@ export const TOOLS_LIST: ToolMetadata[] = [
   },
   // PDF Merge
   {
+    id: 'ai-pdf-generator',
+    category: 'pdf',
+    translationTitleKey: 'toolPdfMergeTitle', // will be overridden in UI layer safely
+    translationDescKey: 'toolPdfMergeDesc',  // will be overridden in UI layer safely
+    iconName: 'Sparkles'
+  },
+  {
     id: 'pdf-merge',
     category: 'pdf',
     translationTitleKey: 'toolPdfMergeTitle',

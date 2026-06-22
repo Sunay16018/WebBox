@@ -37,6 +37,28 @@ export default function Header({
     return SITE_LANGUAGES.find((l) => l.code === lang)?.flag || '🇺🇸';
   };
 
+  const getToolTitle = (tool: any) => {
+    if (tool.id === 'ai-pdf-generator') {
+      switch (currentLanguage) {
+        case 'TR': return 'AI ile PDF Oluştur';
+        case 'AZ': return 'AI ilə PDF Yarat';
+        default: return 'Generate PDF with AI';
+      }
+    }
+    return TRANSLATIONS[currentLanguage][tool.translationTitleKey as any] || '';
+  };
+
+  const getToolDesc = (tool: any) => {
+    if (tool.id === 'ai-pdf-generator') {
+      switch (currentLanguage) {
+        case 'TR': return 'WeBox GPT-Core (Gemini 3.5) en hızlı yapay zeka ve görseller ile profesyonel PDF kitapçıkları hazırlayın.';
+        case 'AZ': return 'WeBox GPT-Core (Gemini 3.5) sürətli süni zəkası və internet şəkilləri ilə peşəkar PDF sənədlər hazırlayın.';
+        default: return 'Generate custom, visual multi-page PDFs using super-fast WeBox GPT-Core (Gemini 3.5) and web images.';
+      }
+    }
+    return TRANSLATIONS[currentLanguage][tool.translationDescKey as any] || '';
+  };
+
   return (
     <>
       {/* Upper Sticky Navbar */}
@@ -183,12 +205,12 @@ export default function Header({
                               }`}
                             >
                               <span className="font-sans font-semibold text-[14px] leading-snug">
-                                {TRANSLATIONS[currentLanguage][tool.translationTitleKey]}
+                                {getToolTitle(tool)}
                               </span>
                               <span className={`text-[12px] mt-0.5 max-w-xs truncate ${
                                 isActive ? 'text-neutral-300' : 'text-neutral-500'
                               }`}>
-                                {TRANSLATIONS[currentLanguage][tool.translationDescKey]}
+                                {getToolDesc(tool)}
                               </span>
                             </button>
                           );

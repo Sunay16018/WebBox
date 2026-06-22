@@ -17,7 +17,8 @@ import {
   CheckCircle,
   HelpCircle,
   FolderOpen,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 
 import { Language, TranslationSet, TRANSLATIONS, TOOLS_LIST } from './types';
@@ -33,6 +34,7 @@ import MediaCutter from './components/MediaCutter';
 import BatchResizer from './components/BatchResizer';
 import WatermarkAdder from './components/WatermarkAdder';
 import InfoPages from './components/InfoPages';
+import AiPdfGenerator from './components/AiPdfGenerator';
 
 const PATH_TO_TOOL_MAP: Record<string, string> = {
   '/metin-cevirici': 'text-translation',
@@ -56,6 +58,9 @@ const PATH_TO_TOOL_MAP: Record<string, string> = {
   '/batch-resizer': 'batch-resizer',
   '/resim-filigran': 'image-watermark',
   '/image-watermark': 'image-watermark',
+  '/yapay-zeka-pdf': 'ai-pdf-generator',
+  '/ai-pdf-generator': 'ai-pdf-generator',
+  '/ai-pdf': 'ai-pdf-generator',
 };
 
 const TOOL_TO_PATH_MAP: Record<string, string> = {
@@ -69,6 +74,7 @@ const TOOL_TO_PATH_MAP: Record<string, string> = {
   'media-cutter': '/medya-kesici',
   'batch-resizer': '/toplu-resim-boyutlandir',
   'image-watermark': '/resim-filigran',
+  'ai-pdf-generator': '/yapay-zeka-pdf',
 };
 
 export default function App() {
@@ -332,6 +338,8 @@ export default function App() {
   // Maps custom tool ID back to respective React component
   const renderSelectedTool = () => {
     switch (activeToolId) {
+      case 'ai-pdf-generator':
+        return <AiPdfGenerator currentLanguage={currentLanguage} />;
       case 'text-translation':
         return <TextTranslation currentLanguage={currentLanguage} />;
       case 'document-translation':
@@ -360,6 +368,7 @@ export default function App() {
   const getToolIcon = (iconName: string) => {
     const props = { className: "w-5 h-5 text-neutral-800" };
     switch (iconName) {
+      case 'Sparkles': return <Sparkles {...props} className="w-5 h-5 text-purple-600 animate-pulse" />;
       case 'Languages': return <Languages {...props} />;
       case 'RefreshCw': return <RefreshCw {...props} />;
       case 'FileStack': return <FileStack {...props} />;
@@ -371,6 +380,28 @@ export default function App() {
       case 'FilePen': return <FilePen {...props} />;
       default: return <FolderOpen {...props} />;
     }
+  };
+
+  const getToolTitleForCard = (tool: any, lang: Language) => {
+    if (tool.id === 'ai-pdf-generator') {
+      switch (lang) {
+        case 'TR': return 'AI ile PDF Oluştur';
+        case 'AZ': return 'AI ilə PDF Yarat';
+        default: return 'Generate PDF with AI';
+      }
+    }
+    return TRANSLATIONS[lang]?.[tool.translationTitleKey as any] || '';
+  };
+
+  const getToolDescForCard = (tool: any, lang: Language) => {
+    if (tool.id === 'ai-pdf-generator') {
+      switch (lang) {
+        case 'TR': return 'WeBox GPT-Core (Gemini 3.5) en hızlı yapay zeka ve görseller ile profesyonel PDF kitapçıkları hazırlayın.';
+        case 'AZ': return 'WeBox GPT-Core (Gemini 3.5) sürətli süni zəkası və internet şəkilləri ilə peşəkar PDF sənədlər hazırlayın.';
+        default: return 'Generate custom, visual multi-page PDFs using super-fast WeBox GPT-Core (Gemini 3.5) and web images.';
+      }
+    }
+    return TRANSLATIONS[lang]?.[tool.translationDescKey as any] || '';
   };
 
   return (
@@ -492,18 +523,18 @@ export default function App() {
                       key={tool.id}
                       id={`landing-tool-card-${tool.id}`}
                       onClick={() => handleSelectTool(tool.id)}
-                      className="bg-white hover:bg-neutral-50/50 p-6 rounded-2xl border border-neutral-100 shadow-[0_1px_3px_0_rgba(0,0,0,0.01)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-5 group"
+                      className="bg-white hover:bg-neutral-50/50 p-6 rounded-2xl border border-neutral-100 shadow-[0_1px_3px_0_rgba(0,0,0,0.01)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 cursor-pointer flex flex-col justify-between gap-5 group animate-fade-in"
                     >
                       <div className="space-y-3">
-                        <div className="p-3 bg-neutral-50 border border-neutral-100 rounded-xl inline-block group-hover:scale-105 transition-transform">
+                        <div className="p-3 bg-neutral-50 border border-neutral-100 rounded-xl inline-block group-hover:scale-105 transition-transform flex items-center justify-center">
                           {getToolIcon(tool.iconName)}
                         </div>
                         <div className="space-y-1">
                           <h4 className="font-sans font-bold text-base text-neutral-900 leading-tight">
-                            {TRANSLATIONS[currentLanguage][tool.translationTitleKey]}
+                            {getToolTitleForCard(tool, currentLanguage)}
                           </h4>
                           <p className="text-xs text-neutral-500 leading-relaxed">
-                            {TRANSLATIONS[currentLanguage][tool.translationDescKey]}
+                            {getToolDescForCard(tool, currentLanguage)}
                           </p>
                         </div>
                       </div>
