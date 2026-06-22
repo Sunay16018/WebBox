@@ -4,25 +4,25 @@
   "description": "Tüm döküman, ses ve PDF dosyalarınızı sunucusuz doğrudan cihazınızda işleyin.",
   "icons": [
     {
-      "src": "/logo-192.png",
+      "src": "/webbox-icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo-192.png",
+      "src": "/webbox-icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/logo-512.png",
+      "src": "/webbox-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/logo-512.png",
+      "src": "/webbox-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
@@ -39,28 +39,28 @@
       "short_name": "Metin Çeviri",
       "description": "Metinleri anında çevrimdışı çevirin",
       "url": "/metin-cevirici",
-      "icons": [{ "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/webbox-icon.png", "sizes": "512x512", "type": "image/png" }]
     },
     {
       "name": "Belge Çeviricisi",
       "short_name": "Belge Çeviri",
       "description": "Dökümanları anında çevrimdışı çevirin",
       "url": "/belge-cevirici",
-      "icons": [{ "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/webbox-icon.png", "sizes": "512x512", "type": "image/png" }]
     },
     {
       "name": "PDF Birleştirici (Merger)",
       "short_name": "PDF Birleştir",
       "description": "Çoklu PDF belgelerini güvenle birleştirin",
       "url": "/pdf-birlestir",
-      "icons": [{ "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/webbox-icon.png", "sizes": "512x512", "type": "image/png" }]
     },
     {
       "name": "Evrensel Format Dönüştürücü",
       "short_name": "Dönüştürücü",
       "description": "Görsel ve ses formatlarını cihazda dönüştürün",
       "url": "/format-donusturucu",
-      "icons": [{ "src": "/logo-192.png", "sizes": "192x192", "type": "image/png" }]
+      "icons": [{ "src": "/webbox-icon.png", "sizes": "512x512", "type": "image/png" }]
     }
   ]
 }
