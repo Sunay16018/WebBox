@@ -36,7 +36,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!assets/|manifest\\.json|sw\\.js|sitemap\\.xml|googlea34f4f888ccac059\\.html|favicon\\.ico).*)",
+      "source": "/:path*",
       "destination": "/index.html"
     }
   ]
