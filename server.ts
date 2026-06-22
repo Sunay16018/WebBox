@@ -378,7 +378,7 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
       color: rgb(0.4, 0.4, 0.4),
     });
     
-    coverPage.drawText("WeBox AI Toolkit Engine • WeBox GPT-Core", {
+    coverPage.drawText("WeBox AI Toolkit Engine • gpt-oss-120b", {
       x: LEFT_MARGIN,
       y: 104,
       size: 10,
@@ -570,7 +570,7 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
         thickness: 0.5,
       });
 
-      const footerLabel = `WeBox AI • WeBox GPT-Core`;
+      const footerLabel = `WeBox AI • gpt-oss-120b`;
       pdfPage.drawText(footerLabel, {
         x: LEFT_MARGIN,
         y: 42,

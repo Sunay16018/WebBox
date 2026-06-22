@@ -84,7 +84,7 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
     // Animate through logical assembly steps to keep user engaged dynamically
     const steps = [
       "WeBox AI sistemi hazırlanıyor...",
-      "WeBox GPT-Core (Gemini-3.5) döküman içeriğini planlıyor...",
+      "gpt-oss-120b döküman içeriğini planlıyor...",
       "Sayfa başlıkları ve akademik fihrist oluşturuluyor...",
       "İnternetten telifsiz en göze hitap eden görseller sorgulanıyor...",
       "Vikipedi Commons ve stok kütüphanesinden döküman görselleri indiriliyor...",
@@ -144,7 +144,7 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
 
     const UI_TRANSLATIONS: Record<string, any> = {
       title: { TR: 'AI ile PDF Oluştur', EN: 'Generate PDF with AI', AZ: 'AI ilə PDF Yarat' },
-      subtitle: { TR: 'WeBox GPT-Core (Gemini 3.5) en hızlı yapay zeka ve internet görselleriyle anında dikey PDF albümü tasarlayın.', EN: 'Instantly design professional custom booklets using WeBox GPT-Core (Gemini 3.5) and thematic web images.', AZ: 'WeBox GPT-Core (Gemini 3.5) ən sürətli süni zəkası və internet şəkilləriylə saniyələr içində PDF sənəd hazırlayın.' },
+      subtitle: { TR: 'gpt-oss-120b en hızlı yapay zeka ve internet görselleriyle anında dikey PDF albümü tasarlayın.', EN: 'Instantly design professional custom booklets using gpt-oss-120b and thematic web images.', AZ: 'gpt-oss-120b ən sürətli süni zəkası və internet şəkilləriylə saniyələr içində PDF sənəd hazırlayın.' },
       promptLabel: { TR: 'PDF Konusu veya Detaylı Açıklama', EN: 'PDF Subject or Detailed Prompt Description', AZ: 'PDF Mövzusu və ya Ətraflı Təsvir' },
       placeholder: { TR: 'Örneğin: "Yenilenebilir Enerji Kaynakları", "Osmanlı İmparatorluğu Tarihi", "Kripto Paralar ve Geleceği"', EN: 'E.g., "History of Space Travel", "Introduction to Cyber Security", "Organic Farming Guide"', AZ: 'Məsələn: "Azərbaycanın Tarixi Abidələri" və ya "Süni İntellekt və Gələcək"' },
       langLabel: { TR: 'PDF Yazım Dili', EN: 'PDF Document Language', AZ: 'PDF Yazı Dili' },

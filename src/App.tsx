@@ -396,9 +396,9 @@ export default function App() {
   const getToolDescForCard = (tool: any, lang: Language) => {
     if (tool.id === 'ai-pdf-generator') {
       switch (lang) {
-        case 'TR': return 'WeBox GPT-Core (Gemini 3.5) en hızlı yapay zeka ve görseller ile profesyonel PDF kitapçıkları hazırlayın.';
-        case 'AZ': return 'WeBox GPT-Core (Gemini 3.5) sürətli süni zəkası və internet şəkilləri ilə peşəkar PDF sənədlər hazırlayın.';
-        default: return 'Generate custom, visual multi-page PDFs using super-fast WeBox GPT-Core (Gemini 3.5) and web images.';
+        case 'TR': return 'gpt-oss-120b en hızlı yapay zeka ve görseller ile profesyonel PDF kitapçıkları hazırlayın.';
+        case 'AZ': return 'gpt-oss-120b sürətli süni zəkası və internet şəkilləri ilə peşəkar PDF sənədlər hazırlayın.';
+        default: return 'Generate custom, visual multi-page PDFs using super-fast gpt-oss-120b and web images.';
       }
     }
     return TRANSLATIONS[lang]?.[tool.translationDescKey as any] || '';
