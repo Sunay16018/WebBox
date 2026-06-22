@@ -1,6 +1,7 @@
 import fs from 'fs';
 import https from 'https';
 import path from 'path';
+import { Jimp } from 'jimp';
 
 const logoUrl = 'https://i.hizliresim.com/l4ili1n.png';
 
@@ -40,32 +41,45 @@ function downloadImage(url) {
 
 async function run() {
   const publicDir = path.resolve('public');
-  const filesToSave = [
-    'logo.png',
-    'logo.jpg',
-    'favicon.ico',
-    'icon-192.png',
-    'icon-512.png'
-  ];
 
-  // Force write assets to ensure they are committed to GitHub
   console.log(`[Asset Downloader] Fetching dynamic theme assets from: ${logoUrl}...`);
   try {
-    const buffer = await downloadImage(logoUrl);
+    const rawBuffer = await downloadImage(logoUrl);
     
     if (!fs.existsSync(publicDir)) {
       fs.mkdirSync(publicDir, { recursive: true });
     }
 
-    filesToSave.forEach((file) => {
-      const targetPath = path.join(publicDir, file);
-      fs.writeFileSync(targetPath, buffer);
-      console.log(`[Asset Downloader] Saved perfect binary: ${file} (${buffer.length} bytes)`);
-    });
+    console.log(`[Asset Downloader] Parsing raw image (${rawBuffer.length} bytes)...`);
+    const jimpImage = await Jimp.read(rawBuffer);
+
+    // Save 512x512 PNG
+    const p512 = jimpImage.clone().resize({ w: 512, h: 512 });
+    const buffer512png = await p512.getBuffer('image/png');
+    fs.writeFileSync(path.join(publicDir, 'logo.png'), buffer512png);
+    fs.writeFileSync(path.join(publicDir, 'icon-512.png'), buffer512png);
+    console.log(`[Asset Downloader] Saved logo.png & icon-512.png: 512x512 PNG (${buffer512png.length} bytes)`);
+
+    // Save 512x512 JPG
+    const buffer512jpg = await p512.getBuffer('image/jpeg');
+    fs.writeFileSync(path.join(publicDir, 'logo.jpg'), buffer512jpg);
+    console.log(`[Asset Downloader] Saved logo.jpg: 512x512 JPEG (${buffer512jpg.length} bytes)`);
+
+    // Save 192x192 PNG
+    const p192 = jimpImage.clone().resize({ w: 192, h: 192 });
+    const buffer192png = await p192.getBuffer('image/png');
+    fs.writeFileSync(path.join(publicDir, 'icon-192.png'), buffer192png);
+    console.log(`[Asset Downloader] Saved icon-192.png: 192x192 PNG (${buffer192png.length} bytes)`);
+
+    // Save 32x32 Favicon PNG (saved as favicon.ico so it serves properly)
+    const p32 = jimpImage.clone().resize({ w: 32, h: 32 });
+    const buffer32png = await p32.getBuffer('image/png');
+    fs.writeFileSync(path.join(publicDir, 'favicon.ico'), buffer32png);
+    console.log(`[Asset Downloader] Saved favicon.ico: 32x32 PNG-ICO (${buffer32png.length} bytes)`);
     
-    console.log('[Asset Downloader] All dynamic assets generated successfully!');
+    console.log('[Asset Downloader] All dynamic assets optimized and generated successfully!');
   } catch (error) {
-    console.warn(`[Asset Downloader] Warning: Could not download the remote logo. (${error.message})`);
+    console.warn(`[Asset Downloader] Warning: Could not download and optimize the remote logo. (${error.message})`);
     console.warn('[Asset Downloader] Using existing/fallback assets if available.');
   }
 }
