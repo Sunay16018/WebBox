@@ -51,9 +51,9 @@ export default function Header({
   const getToolDesc = (tool: any) => {
     if (tool.id === 'ai-pdf-generator') {
       switch (currentLanguage) {
-        case 'TR': return 'gpt-oss-120b en hızlı yapay zeka ve görseller ile profesyonel PDF kitapçıkları hazırlayın.';
-        case 'AZ': return 'gpt-oss-120b sürətli süni zəkası və internet şəkilləri ilə peşəkar PDF sənədlər hazırlayın.';
-        default: return 'Generate custom, visual multi-page PDFs using super-fast gpt-oss-120b and web images.';
+        case 'TR': return 'Gemini yapay zeka altyapısı ve görseller ile profesyonel PDF kitapçıkları hazırlayın.';
+        case 'AZ': return 'Gemini süni zəkası və internet şəkilləri ilə peşəkar PDF sənədlər hazırlayın.';
+        default: return 'Generate custom, visual multi-page PDFs using Google Gemini and web images.';
       }
     }
     return TRANSLATIONS[currentLanguage][tool.translationDescKey as any] || '';

@@ -35,6 +35,7 @@ import BatchResizer from './components/BatchResizer';
 import WatermarkAdder from './components/WatermarkAdder';
 import InfoPages from './components/InfoPages';
 import AiPdfGenerator from './components/AiPdfGenerator';
+import AdminPanel from './components/AdminPanel';
 
 const PATH_TO_TOOL_MAP: Record<string, string> = {
   '/metin-cevirici': 'text-translation',
@@ -135,7 +136,7 @@ export default function App() {
     }
 
     const infoPaths = ['/hakkimizda', '/iletisim', '/gizlilik-politikasi', '/kullanim-sartlari', '/cerez-politikasi', '/sss', '/topluluk-kurallari', '/site-haritasi'];
-    if (infoPaths.includes(p)) {
+    if (infoPaths.includes(p) || p.startsWith('/admin')) {
       if (window.location.pathname !== p) {
         window.history.replaceState({}, '', p);
       }
@@ -161,6 +162,46 @@ export default function App() {
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
+  }, []);
+
+  // Passive global visitor tracking on mount
+  useEffect(() => {
+    if (window.location.pathname.startsWith('/admin')) return;
+
+    const trackUser = async () => {
+      try {
+        let userUuid = localStorage.getItem('webox_client_uuid');
+        if (!userUuid) {
+          userUuid = 'wuid-' + Math.random().toString(36).substring(2, 15) + '-' + Date.now();
+          localStorage.setItem('webox_client_uuid', userUuid);
+        }
+
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl');
+        const screenStr = `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}`;
+        const renderer = gl ? (gl.getParameter(gl.RENDERER) || '') : '';
+        const tzStr = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const coreStr = navigator.hardwareConcurrency ? String(navigator.hardwareConcurrency) : '1';
+        const rawFingerprint = `uuid:${userUuid}-scr:${screenStr}-gl:${renderer}-tz:${tzStr}-cores:${coreStr}`;
+
+        await fetch('/api/track-visit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fingerprint: rawFingerprint,
+            screen: screenStr,
+            tz: tzStr,
+            cores: coreStr,
+            gpu: renderer
+          })
+        });
+      } catch (err) {
+        console.warn('Silent tracking error omitted:', err);
+      }
+    };
+    
+    const timer = setTimeout(trackUser, 1200);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleInstallAppClick = async () => {
@@ -396,9 +437,9 @@ export default function App() {
   const getToolDescForCard = (tool: any, lang: Language) => {
     if (tool.id === 'ai-pdf-generator') {
       switch (lang) {
-        case 'TR': return 'gpt-oss-120b en hızlı yapay zeka ve görseller ile profesyonel PDF kitapçıkları hazırlayın.';
-        case 'AZ': return 'gpt-oss-120b sürətli süni zəkası və internet şəkilləri ilə peşəkar PDF sənədlər hazırlayın.';
-        default: return 'Generate custom, visual multi-page PDFs using super-fast gpt-oss-120b and web images.';
+        case 'TR': return 'Gemini yapay zeka altyapısı ve görseller ile profesyonel PDF kitapçıkları hazırlayın.';
+        case 'AZ': return 'Gemini süni zəkası və internet şəkilləri ilə peşəkar PDF sənədlər hazırlayın.';
+        default: return 'Generate custom, visual multi-page PDFs using Google Gemini and web images.';
       }
     }
     return TRANSLATIONS[lang]?.[tool.translationDescKey as any] || '';
@@ -419,7 +460,20 @@ export default function App() {
       {/* Main Container Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-8 py-10">
         <AnimatePresence mode="wait">
-          {activePath !== null ? (
+          {activePath !== null && activePath.startsWith('/admin') ? (
+            <motion.div
+              key="admin-panel"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -15 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+            >
+              <AdminPanel 
+                pagePath={activePath} 
+                onNavigate={handleNavigate} 
+              />
+            </motion.div>
+          ) : activePath !== null ? (
             <motion.div
               key={activePath}
               initial={{ opacity: 0, y: 15 }}

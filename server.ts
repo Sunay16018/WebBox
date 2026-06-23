@@ -16,7 +16,11 @@ const USAGE_DB_PATH = path.join(process.cwd(), "ai_pdf_usage.json");
 
 function getUsageDb() {
   if (!fs.existsSync(USAGE_DB_PATH)) {
-    fs.writeFileSync(USAGE_DB_PATH, JSON.stringify({}), "utf8");
+    try {
+      fs.writeFileSync(USAGE_DB_PATH, JSON.stringify({}), "utf8");
+    } catch (e) {
+      console.error("Error creating usage DB file:", e);
+    }
     return {};
   }
   try {
@@ -43,9 +47,10 @@ function getRemainingLimit(fingerprint: string) {
   const db = getUsageDb();
   const today = getTodayString();
   const userRecord = db[fingerprint];
-  if (!userRecord) return 5;
-  if (userRecord.lastResetDate !== today) return 5;
-  return Math.max(0, 5 - userRecord.count);
+  const maxLimit = userRecord && typeof userRecord.customLimit === "number" ? userRecord.customLimit : 5;
+  if (!userRecord) return maxLimit;
+  if (userRecord.lastResetDate !== today) return maxLimit;
+  return Math.max(0, maxLimit - userRecord.count);
 }
 
 function incrementUsage(fingerprint: string): { allowed: boolean; remaining: number } {
@@ -57,23 +62,100 @@ function incrementUsage(fingerprint: string): { allowed: boolean; remaining: num
   }
   
   const userRecord = db[fingerprint];
+  const maxLimit = typeof userRecord.customLimit === "number" ? userRecord.customLimit : 5;
+
   if (userRecord.lastResetDate !== today) {
     userRecord.count = 0;
     userRecord.lastResetDate = today;
   }
   
-  if (userRecord.count >= 5) {
+  if (userRecord.count >= maxLimit) {
     return { allowed: false, remaining: 0 };
   }
   
   userRecord.count += 1;
   saveUsageDb(db);
-  return { allowed: true, remaining: 5 - userRecord.count };
+  return { allowed: true, remaining: maxLimit - userRecord.count };
+}
+
+function trackDeviceHistory(fingerprint: string, req: any, bodyData: any = {}) {
+  const db = getUsageDb();
+  const today = getTodayString();
+  
+  if (!db[fingerprint]) {
+    db[fingerprint] = { count: 0, lastResetDate: today };
+  }
+  
+  const record = db[fingerprint];
+  const rawIp = req.headers["x-forwarded-for"] || req.socket.remoteAddress || "127.0.0.1";
+  const cleanIp = typeof rawIp === "string" ? rawIp.split(",")[0].trim().replace(/^::ffff:/, "") : "127.0.0.1";
+  
+  record.ip = cleanIp;
+  record.userAgent = req.headers["user-agent"] || record.userAgent || "Unknown";
+  record.lastActive = new Date().toISOString();
+  
+  if (bodyData.screen) record.screen = bodyData.screen;
+  if (bodyData.tz) record.tz = bodyData.tz;
+  if (bodyData.cores) record.cores = String(bodyData.cores);
+  if (bodyData.gpu) record.gpu = bodyData.gpu;
+  
+  saveUsageDb(db);
+}
+
+function toSafePdfText(text: string): string {
+  if (!text) return "";
+  const charMap: Record<string, string> = {
+    'ə': 'e', 'Ə': 'E',
+    'ı': 'i', 'I': 'I', 'İ': 'I',
+    'ş': 's', 'Ş': 'S',
+    'ğ': 'g', 'Ğ': 'G',
+    'ç': 'c', 'Ç': 'C',
+    'ö': 'o', 'Ö': 'O',
+    'ü': 'u', 'Ü': 'U',
+    'â': 'a', 'Â': 'A',
+    'î': 'i', 'Î': 'I',
+    'û': 'u', 'Û': 'U',
+    '“': '"', '”': '"',
+    '‘': "'", '’': "'",
+    '–': '-', '—': '-',
+  };
+
+  const cyrillicToLatin: Record<string, string> = {
+    'а': 'a', 'б': 'b', 'в': 'v', 'г': 'g', 'д': 'd', 'е': 'e', 'ё': 'yo', 'ж': 'zh',
+    'з': 'z', 'и': 'i', 'й': 'y', 'к': 'k', 'л': 'l', 'м': 'm', 'н': 'n', 'о': 'o',
+    'п': 'p', 'р': 'r', 'с': 's', 'т': 't', 'у': 'u', 'ф': 'f', 'х': 'kh', 'ц': 'ts',
+    'ч': 'ch', 'ш': 'sh', 'щ': 'shch', 'ъ': '', 'ы': 'y', 'ь': '', 'э': 'e', 'ю': 'yu',
+    'я': 'ya',
+    'А': 'A', 'Б': 'B', 'В': 'V', 'Г': 'G', 'Д': 'D', 'Е': 'E', 'Ё': 'Yo', 'Ж': 'Zh',
+    'З': 'Z', 'И': 'I', 'Й': 'Y', 'К': 'K', 'Л': 'L', 'М': 'M', 'Н': 'N', 'О': 'O',
+    'П': 'P', 'Р': 'R', 'С': 'S', 'Т': 'T', 'У': 'U', 'Ф': 'F', 'Х': 'Kh', 'Ц': 'Ts',
+    'Ч': 'Ch', 'Ш': 'Sh', 'Щ': 'Shch', 'Ъ': '', 'Ы': 'Y', 'Ь': '', 'Э': 'E', 'Ю': 'Yu',
+    'Я': 'Ya'
+  };
+
+  return text.split('').map(char => {
+    if (charMap[char]) return charMap[char];
+    if (cyrillicToLatin[char]) return cyrillicToLatin[char];
+    
+    const code = char.charCodeAt(0);
+    if (code > 127) {
+      const norm = char.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+      if (norm !== char && norm.charCodeAt(0) <= 127) {
+        return norm;
+      }
+      if (code >= 192 && code <= 255) {
+        return char;
+      }
+      return "?";
+    }
+    return char;
+  }).join('');
 }
 
 // Text wrapping utility for pdf-lib text drawing
 function wrapText(text: string, maxWidth: number, font: any, fontSize: number): string[] {
-  const words = text.split(" ");
+  const safeText = toSafePdfText(text || "");
+  const words = safeText.split(" ");
   const lines: string[] = [];
   let currentLine = "";
 
@@ -179,9 +261,181 @@ app.post("/api/ai-pdf-limit", (req: any, res: any) => {
   if (!fingerprint) {
     return res.status(400).json({ error: "Eksik cihaz bilgisi." });
   }
+  trackDeviceHistory(fingerprint, req, req.body);
   const remaining = getRemainingLimit(fingerprint);
   return res.json({ remaining });
 });
+
+// 1.5. Passive visit tracking endpoint
+app.post("/api/track-visit", (req: any, res: any) => {
+  const { fingerprint } = req.body;
+  if (fingerprint) {
+    trackDeviceHistory(fingerprint, req, req.body);
+  }
+  return res.json({ success: true });
+});
+
+// Admin panel analytics dashboard data endpoint
+app.post("/api/admin/stats", (req: any, res: any) => {
+  const { password } = req.body;
+  const adminPass = process.env.ADMIN_PASSWORD || "webox2026";
+  if (!password || password !== adminPass) {
+    return res.status(401).json({ error: "Yetkisiz Erişim! Belirtilen şifre yanlış veya sunucuda tanımlı değil." });
+  }
+
+  const db = getUsageDb();
+  const list = Object.keys(db).map((key) => {
+    const item = db[key];
+    return {
+      fingerprint: key,
+      count: typeof item.count === 'number' ? item.count : 0,
+      lastResetDate: item.lastResetDate,
+      customLimit: typeof item.customLimit === 'number' ? item.customLimit : 5,
+      ip: item.ip || "127.0.0.1",
+      userAgent: item.userAgent || "Bilinmiyor",
+      screen: item.screen || "Yüklenecek...",
+      tz: item.tz || "UTC",
+      cores: item.cores || "1",
+      gpu: item.gpu || "Bilinmiyor",
+      lastActive: item.lastActive || new Date().toISOString()
+    };
+  });
+
+  list.sort((a, b) => new Date(b.lastActive).getTime() - new Date(a.lastActive).getTime());
+  return res.json({ list });
+});
+
+// Admin panel dynamic limits & dynamic usage count override endpoint
+app.post("/api/admin/update-limit", (req: any, res: any) => {
+  const { password, fingerprint, customLimit, count } = req.body;
+  const adminPass = process.env.ADMIN_PASSWORD || "webox2026";
+  if (!password || password !== adminPass) {
+    return res.status(401).json({ error: "Yetkisiz Erişim" });
+  }
+
+  if (!fingerprint) {
+    return res.status(400).json({ error: "Cihaz kimliği (fingerprint) eksik." });
+  }
+
+  const db = getUsageDb();
+  if (!db[fingerprint]) {
+    db[fingerprint] = { count: 0, lastResetDate: getTodayString() };
+  }
+
+  if (typeof customLimit === "number") {
+    db[fingerprint].customLimit = customLimit;
+  }
+  if (typeof count === "number") {
+    db[fingerprint].count = count;
+  }
+
+  saveUsageDb(db);
+  return res.json({ success: true });
+});
+
+// Helper to extract the first complete JSON object by tracking brace depth
+function extractFirstJsonObject(text: string): string {
+  const firstBrace = text.indexOf('{');
+  if (firstBrace === -1) {
+    throw new Error("Could not find any opening brace '{' in the response.");
+  }
+
+  let braceCount = 0;
+  let inString = false;
+  let escape = false;
+
+  for (let i = firstBrace; i < text.length; i++) {
+    const char = text[i];
+
+    if (escape) {
+      escape = false;
+      continue;
+    }
+
+    if (char === '\\') {
+      escape = true;
+      continue;
+    }
+
+    if (char === '"') {
+      inString = !inString;
+      continue;
+    }
+
+    if (!inString) {
+      if (char === '{') {
+        braceCount++;
+      } else if (char === '}') {
+        braceCount--;
+        if (braceCount === 0) {
+          return text.substring(firstBrace, i + 1);
+        }
+      }
+    }
+  }
+
+  // Fallback to last index of '}' if matching brace isn't found or brace count is off
+  const lastBrace = text.lastIndexOf('}');
+  if (lastBrace !== -1 && lastBrace > firstBrace) {
+    return text.substring(firstBrace, lastBrace + 1);
+  }
+
+  throw new Error("Could not find matching closing brace '}' in the response.");
+}
+
+function cleanJsonString(jsonStr: string): string {
+  return jsonStr
+    // Remove trailing commas before closing braces/brackets
+    .replace(/,\s*([}\]])/g, '$1')
+    // Remove non-printable control characters
+    .replace(/[\u0000-\u0008\u000B-\u000C\u000E-\u001F\u007F-\u009F]/g, "");
+}
+
+// Robust JSON parser helper
+function parseRobustJson(text: string): any {
+  let cleaned = text.trim();
+
+  // Try parsing directly first
+  try {
+    return JSON.parse(cleaned);
+  } catch (e) {
+    // Keep going
+  }
+
+  // Look for markdown json block
+  const jsonBlockRegex = /```json\s*([\s\S]*?)\s*```/;
+  const matchJson = cleaned.match(jsonBlockRegex);
+  if (matchJson && matchJson[1]) {
+    try {
+      return JSON.parse(matchJson[1].trim());
+    } catch (e) {
+      // Keep going
+    }
+  }
+
+  // Look for general markdown block
+  const blockRegex = /```\s*([\s\S]*?)\s*```/;
+  const matchBlock = cleaned.match(blockRegex);
+  if (matchBlock && matchBlock[1]) {
+    try {
+      return JSON.parse(matchBlock[1].trim());
+    } catch (e) {
+      // Keep going
+    }
+  }
+
+  try {
+    const extracted = extractFirstJsonObject(cleaned);
+    try {
+      return JSON.parse(extracted);
+    } catch (e) {
+      const cleanedCandidate = cleanJsonString(extracted);
+      return JSON.parse(cleanedCandidate);
+    }
+  } catch (e: any) {
+    throw new Error(`JSON parsing failed. Attempted robust clean parse error: ${e.message || e}`);
+  }
+}
 
 // 2. Cerebras-powered dynamic PDF generation endpoint
 app.post("/api/generate-ai-pdf", async (req: any, res: any) => {
@@ -212,9 +466,18 @@ app.post("/api/generate-ai-pdf", async (req: any, res: any) => {
   const pdfLanguage = language || "Turkish";
 
   // Instruction prompt crafted beautifully to ensure flawless JSON responses from GPT/Gemini family
-  const systemInstruction = `You are an elite academic editor and visual PDF layout planner.
+  const systemInstruction = `You are an elite academic editor, professional author, and visual PDF layout planner.
 Format your output as a 100% compliant, parsed RAW JSON string matching the exact schema below.
-IMPORTANT: You MUST write the booklet content strictly in the requested language: "${pdfLanguage}".
+
+IMPORTANT LANGUAGE & GRAMMAR DIRECTIVES:
+- You MUST write the booklet content strictly in the requested language: "${pdfLanguage}".
+- Use flawless academic grammar, perfect spelling, proper capitalization, correct native syntax, and pristine punctuation.
+- Strictly make NO spelling errors, grammatical mistakes, or typos.
+- In Turkish and Azerbaijani, use the exact native letters (such as ş, ç, ğ, ı, ö, ü, ə, Ş, Ç, Ğ, İ, Ö, Ü, Ə) with proper modern orthography.
+- Avoid repeating details between pages; each page must form an engaging, sequential, logical chapter that builds upon the previous pages.
+- Provide exhaustive, rich details: write fully fleshed-out paragraphs (80-120 words per paragraph) full of valuable expert insights. Avoid brief summaries or generic bullet points.
+- Tone should be highly professional, authoritative, engaging, extremely informative, and comprehensive.
+
 The booklet must contain exactly ${pages} distinct, sequential page blocks.
 
 Schema:
@@ -234,7 +497,7 @@ Schema:
         "Key insight or descriptive finding 2",
         "Key insight or descriptive finding 3"
       ],
-      "imageSearchQuery": "A concise English noun phrase suitable for searching high-fidelity photos or scientific illustrations (e.g., 'solar system mars', 'dna double helix', 'blockchain ledger ledger')"
+      "imageSearchQuery": "A concise English noun phrase suitable for searching high-fidelity photos or scientific illustrations (e.g., 'solar system mars', 'dna double helix', 'blockchain ledger')"
     }
   ]
 }
@@ -251,27 +514,42 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
       }
     });
 
-    const response = await ai.models.generateContent({
-      model: "gemini-3.5-flash",
-      contents: `Please write a highly detailed professional booklet about: "${prompt}". Make sure it is completely tailored for language: "${pdfLanguage}" with exactly ${pages} pages.`,
-      config: {
-        systemInstruction,
-        responseMimeType: "application/json",
-        temperature: 0.3
+    const modelsToTry = [
+      "gemini-3.5-flash",
+      "gemini-3.1-pro-preview",
+      "gemini-flash-latest",
+      "gemini-3.1-flash-lite"
+    ];
+
+    let response;
+    let lastError: any = null;
+
+    for (const model of modelsToTry) {
+      try {
+        response = await ai.models.generateContent({
+          model,
+          contents: `Please write a highly detailed professional booklet about: "${prompt}". Make sure it is completely tailored for language: "${pdfLanguage}" with exactly ${pages} pages.`,
+          config: {
+            systemInstruction,
+            responseMimeType: "application/json",
+            temperature: 0.3
+          }
+        });
+        if (response && response.text) {
+          break; // successfully got a response
+        }
+      } catch (err: any) {
+        lastError = err;
+        console.warn(`Model ${model} failed or was busy. Error:`, err.message || err);
       }
-    });
-
-    let rawContent = response.text || "";
-    
-    // Clean JSON tags from output
-    if (rawContent.includes("```json")) {
-      rawContent = rawContent.split("```json")[1].split("```")[0];
-    } else if (rawContent.includes("```")) {
-      rawContent = rawContent.split("```")[1].split("```")[0];
     }
-    rawContent = rawContent.trim();
 
-    const plannedBooklet = JSON.parse(rawContent);
+    if (!response || !response.text) {
+      throw new Error(`All Gemini models failed or were busy. Last error: ${lastError?.message || lastError}`);
+    }
+
+    const rawContent = response.text || "";
+    const plannedBooklet = parseRobustJson(rawContent);
 
     // Now, let's assemble the gorgeous PDF using pdf-lib on behalf of WeBox AI
     const pdfDoc = await PDFDocument.create();
@@ -290,11 +568,11 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
     
     // Subtle border design
     coverPage.drawRectangle({
-      x: 30,
-      y: 30,
-      width: A4_WIDTH - 60,
-      height: A4_HEIGHT - 60,
-      borderColor: rgb(0.1, 0.1, 0.1),
+      x: 35,
+      y: 35,
+      width: A4_WIDTH - 70,
+      height: A4_HEIGHT - 70,
+      borderColor: rgb(0.12, 0.15, 0.2),
       borderWidth: 1.5,
     });
 
@@ -310,45 +588,83 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
     let coverY = A4_HEIGHT - 180;
     
     // booklet title (wrap long titles gracefully on the cover!)
-    const coverTitleLines = wrapText(plannedBooklet.title || prompt, CONTENT_WIDTH, fontBold, 26);
+    const coverTitleLines = wrapText(plannedBooklet.title || prompt, CONTENT_WIDTH, fontBold, 22);
     for (const line of coverTitleLines) {
       coverPage.drawText(line, {
         x: LEFT_MARGIN,
         y: coverY,
-        size: 26,
+        size: 22,
         font: fontBold,
         color: rgb(0.06, 0.09, 0.16),
       });
-      coverY -= 36;
+      coverY -= 28;
     }
 
-    coverY -= 10;
+    coverY -= 8;
 
     // booklet subtitle
-    const coverSubLines = wrapText(plannedBooklet.subtitle || "Yapay Zeka Çalışma Kitapçığı", CONTENT_WIDTH, fontStandard, 13);
+    const coverSubLines = wrapText(plannedBooklet.subtitle || "Yapay Zeka Çalışma Kitapçığı", CONTENT_WIDTH, fontStandard, 11);
     for (const line of coverSubLines) {
       coverPage.drawText(line, {
         x: LEFT_MARGIN,
         y: coverY,
-        size: 13,
+        size: 11,
         font: fontStandard,
         color: rgb(0.3, 0.35, 0.45),
       });
-      coverY -= 18;
+      coverY -= 16;
     }
 
-    // Centered aesthetic separator line
-    coverPage.drawLine({
-      start: { x: LEFT_MARGIN, y: coverY - 12 },
-      end: { x: A4_WIDTH - LEFT_MARGIN, y: coverY - 12 },
-      color: rgb(0.9, 0.9, 0.9),
-      thickness: 1,
-    });
+    // Cover Page Picture (Cover Image) download & rendering pipeline
+    coverY -= 15;
+    const coverQuery = plannedBooklet.title || prompt;
+    const coverImageUrl = await searchImageFromInternet(coverQuery);
+    let coverImgSuccess = false;
 
-    coverY -= 80;
+    if (coverImageUrl) {
+      const imgObj = await fetchImageBuffer(coverImageUrl);
+      if (imgObj) {
+        try {
+          let embeddedImage;
+          if (imgObj.isPng) {
+            embeddedImage = await pdfDoc.embedPng(imgObj.bytes);
+          } else {
+            embeddedImage = await pdfDoc.embedJpg(imgObj.bytes);
+          }
 
-    // Booklet general topic details or prompt visual context
-    coverPage.drawText("Konu / Subject:", {
+          const scaleDims = embeddedImage.scaleToFit(CONTENT_WIDTH, 220);
+          const drawX = LEFT_MARGIN + (CONTENT_WIDTH - scaleDims.width) / 2;
+          const drawY = coverY - scaleDims.height;
+
+          coverPage.drawImage(embeddedImage, {
+            x: drawX,
+            y: drawY,
+            width: scaleDims.width,
+            height: scaleDims.height,
+          });
+
+          coverY = drawY - 26;
+          coverImgSuccess = true;
+        } catch (embedErr) {
+          console.error("Embedding cover image error on pdf-lib:", embedErr);
+        }
+      }
+    }
+
+    // If no cover image found, draw a minimalist separator
+    if (!coverImgSuccess) {
+      coverY -= 10;
+      coverPage.drawLine({
+        start: { x: LEFT_MARGIN, y: coverY },
+        end: { x: A4_WIDTH - LEFT_MARGIN, y: coverY },
+        color: rgb(0.85, 0.88, 0.92),
+        thickness: 1.5,
+      });
+      coverY -= 30;
+    }
+
+    // Booklet general topic details
+    coverPage.drawText(toSafePdfText("Açıklama / Description:"), {
       x: LEFT_MARGIN,
       y: coverY,
       size: 10,
@@ -356,50 +672,43 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
       color: rgb(0.4, 0.4, 0.4),
     });
 
-    const bodyWrapLines = wrapText(prompt, CONTENT_WIDTH, fontStandard, 11);
+    const bodyWrapLines = wrapText(prompt, CONTENT_WIDTH, fontStandard, 10);
     let tempY = coverY - 18;
     for (const ln of bodyWrapLines) {
+      if (tempY < 120) break;
       coverPage.drawText(ln, {
         x: LEFT_MARGIN,
         y: tempY,
-        size: 11,
+        size: 10,
         font: fontStandard,
         color: rgb(0.1, 0.1, 0.1),
       });
-      tempY -= 16;
+      tempY -= 15;
     }
 
-    // Cover Page Footer info
-    coverPage.drawText("Hazırlayan / Generator:", {
+    // Cover Page Footer info - Academic and professional without branding keywords
+    coverPage.drawText(toSafePdfText("Yayın Tarihi / Date of Publication:"), {
       x: LEFT_MARGIN,
-      y: 120,
-      size: 9,
+      y: 90,
+      size: 8.5,
       font: fontBold,
-      color: rgb(0.4, 0.4, 0.4),
+      color: rgb(0.45, 0.5, 0.55),
     });
     
-    coverPage.drawText("WeBox AI Toolkit Engine • gpt-oss-120b", {
+    coverPage.drawText(toSafePdfText(new Date().toLocaleDateString('tr-TR', { year: 'numeric', month: 'long', day: 'numeric' })), {
       x: LEFT_MARGIN,
-      y: 104,
+      y: 74,
       size: 10,
       font: fontStandard,
-      color: rgb(0.1, 0.1, 0.1),
+      color: rgb(0.15, 0.18, 0.24),
     });
 
-    coverPage.drawText(`Tarih / Date: ${new Date().toLocaleDateString()}`, {
+    coverPage.drawText(toSafePdfText("BELGE TÜRÜ: ÖZEL ÇALIŞMA RAPORU / SPECIAL REPORT"), {
       x: LEFT_MARGIN,
-      y: 88,
-      size: 9,
-      font: fontStandard,
-      color: rgb(0.5, 0.5, 0.5),
-    });
-
-    coverPage.drawText("GÜVENLİ VE ŞEFFAF SANDBOX SİSTEMİ", {
-      x: LEFT_MARGIN,
-      y: 55,
+      y: 52,
       size: 8,
       font: fontBold,
-      color: rgb(0.05, 0.5, 0.3),
+      color: rgb(0.35, 0.4, 0.45),
     });
 
     // 2. Build Inner Content Pages
@@ -421,7 +730,7 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
       });
 
       // Header title
-      pdfPage.drawText(sPage.header || `Sayfa ${pIdx + 1}`, {
+      pdfPage.drawText(toSafePdfText(sPage.header || `Sayfa ${pIdx + 1}`), {
         x: LEFT_MARGIN,
         y: A4_HEIGHT - 60,
         size: 16,
@@ -444,6 +753,7 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
       let imgSuccess = false;
 
       if (imageUrl) {
+        sPage.imageUrl = imageUrl;
         const imgObj = await fetchImageBuffer(imageUrl);
         if (imgObj) {
           try {
@@ -466,7 +776,7 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
             });
 
             // Draw caption under photo
-            pdfPage.drawText(`Görsel: ${queryStr}`, {
+            pdfPage.drawText(toSafePdfText(`Görsel: ${queryStr}`), {
               x: LEFT_MARGIN,
               y: drawY - 12,
               size: 7.5,
@@ -498,7 +808,7 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
         });
 
         // Add visual text centered inside the frame
-        const pLabel = `[Önizleme / Visual Material: ${queryStr}]`;
+        const pLabel = toSafePdfText(`[Önizleme / Visual Material: ${queryStr}]`);
         const labelWidth = fontOblique.widthOfTextAtSize(pLabel, 9);
         
         pdfPage.drawText(pLabel, {
@@ -570,13 +880,14 @@ Ensure your response contains ONLY the raw JSON string inside and no chat preamb
         thickness: 0.5,
       });
 
-      const footerLabel = `WeBox AI • gpt-oss-120b`;
-      pdfPage.drawText(footerLabel, {
+      const footerLabel = plannedBooklet.title ? toSafePdfText(plannedBooklet.title) : "Doküman";
+      const truncatedFooter = footerLabel.length > 55 ? footerLabel.substring(0, 52) + "..." : footerLabel;
+      pdfPage.drawText(truncatedFooter, {
         x: LEFT_MARGIN,
         y: 42,
-        size: 7.5,
-        font: fontStandard,
-        color: rgb(0.6, 0.6, 0.6),
+        size: 8,
+        font: fontOblique,
+        color: rgb(0.5, 0.55, 0.6),
       });
 
       const pageNumberStr = `${pIdx + 2} / ${totalPdfPages}`;

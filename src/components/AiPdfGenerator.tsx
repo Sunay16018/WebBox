@@ -25,9 +25,48 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
   const [progressMsg, setProgressMsg] = useState('');
   const [remainingLimit, setRemainingLimit] = useState(5);
   const [generatedPdfBase64, setGeneratedPdfBase64] = useState('');
+  const [pdfBlobUrl, setPdfBlobUrl] = useState('');
   const [contentStructure, setContentStructure] = useState<any>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [clientFingerprint, setClientFingerprint] = useState('');
+  const [activePreviewPageIdx, setActivePreviewPageIdx] = useState<number>(0);
+
+  // Auto trigger download and blob formulation on base64 change
+  useEffect(() => {
+    if (generatedPdfBase64) {
+      try {
+        setActivePreviewPageIdx(0); // Reset page visualizer to cover page
+        const byteCharacters = atob(generatedPdfBase64);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const blob = new Blob([byteArray], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        setPdfBlobUrl(url);
+
+        // Immediate automatic download trigger
+        const downloadLink = document.createElement('a');
+        downloadLink.href = url;
+        const titleSlug = (contentStructure?.title || prompt || 'webox-ai-booklet')
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .substring(0, 40);
+        downloadLink.download = `webox-ai-${titleSlug || 'document'}.pdf`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      } catch (err) {
+        console.error('Failed to auto-download PDF:', err);
+      }
+    } else {
+      if (pdfBlobUrl) {
+        URL.revokeObjectURL(pdfBlobUrl);
+      }
+      setPdfBlobUrl('');
+    }
+  }, [generatedPdfBase64]);
 
   // 1. Compute Browser Fingerprint on Mount and load user limits quota
   useEffect(() => {
@@ -63,8 +102,11 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
         body: JSON.stringify({ fingerprint })
       });
       if (response.ok) {
-        const data = await response.json();
-        setRemainingLimit(data.remaining);
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+          const data = await response.json();
+          setRemainingLimit(data.remaining);
+        }
       }
     } catch (e) {
       console.error('Error fetching rate limits:', e);
@@ -84,7 +126,7 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
     // Animate through logical assembly steps to keep user engaged dynamically
     const steps = [
       "WeBox AI sistemi hazırlanıyor...",
-      "gpt-oss-120b döküman içeriğini planlıyor...",
+      "Gemini yapay zekası döküman içeriğini planlıyor...",
       "Sayfa başlıkları ve akademik fihrist oluşturuluyor...",
       "İnternetten telifsiz en göze hitap eden görseller sorgulanıyor...",
       "Vikipedi Commons ve stok kütüphanesinden döküman görselleri indiriliyor...",
@@ -119,7 +161,19 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
 
       clearInterval(statusInterval);
 
-      const resData = await response.json();
+      const contentType = response.headers.get('content-type') || '';
+      let resData: any = {};
+      if (contentType.includes('application/json')) {
+        resData = await response.json();
+      } else {
+        throw new Error(
+          currentLanguage === 'TR'
+            ? 'Sunucudan beklenmeyen bir yanıt alındı. Sunucu şu an güncelleniyor veya yeniden başlatılıyor olabilir. Lütfen 5-10 saniye bekleyip tekrar deneyiniz.'
+            : currentLanguage === 'AZ'
+              ? 'Serverdən gözlənilməz cavab alındı. Server hazırda yenidən başladılır ola bilər. Zəhmət olmasa 5-10 saniyə gözləyib yenidən cəhd edin.'
+              : 'Unexpected response from the server. The server might be restarting or updating. Please wait 5-10 seconds and try again.'
+        );
+      }
 
       if (response.ok) {
         setGeneratedPdfBase64(resData.fileBase64);
@@ -144,7 +198,7 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
 
     const UI_TRANSLATIONS: Record<string, any> = {
       title: { TR: 'AI ile PDF Oluştur', EN: 'Generate PDF with AI', AZ: 'AI ilə PDF Yarat' },
-      subtitle: { TR: 'gpt-oss-120b en hızlı yapay zeka ve internet görselleriyle anında dikey PDF albümü tasarlayın.', EN: 'Instantly design professional custom booklets using gpt-oss-120b and thematic web images.', AZ: 'gpt-oss-120b ən sürətli süni zəkası və internet şəkilləriylə saniyələr içində PDF sənəd hazırlayın.' },
+      subtitle: { TR: 'Gelişmiş yapay zeka ve internet görselleriyle anında dikey PDF albümü tasarlayın.', EN: 'Instantly design professional custom booklets using advanced AI and thematic web images.', AZ: 'Ən son süni zəkası və internet şəkilləriylə saniyələr içində PDF sənəd hazırlayın.' },
       promptLabel: { TR: 'PDF Konusu veya Detaylı Açıklama', EN: 'PDF Subject or Detailed Prompt Description', AZ: 'PDF Mövzusu və ya Ətraflı Təsvir' },
       placeholder: { TR: 'Örneğin: "Yenilenebilir Enerji Kaynakları", "Osmanlı İmparatorluğu Tarihi", "Kripto Paralar ve Geleceği"', EN: 'E.g., "History of Space Travel", "Introduction to Cyber Security", "Organic Farming Guide"', AZ: 'Məsələn: "Azərbaycanın Tarixi Abidələri" və ya "Süni İntellekt və Gələcək"' },
       langLabel: { TR: 'PDF Yazım Dili', EN: 'PDF Document Language', AZ: 'PDF Yazı Dili' },
@@ -165,18 +219,9 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
 
   // Download logic for compiled PDF bytes array
   const handleDownloadPdfFile = () => {
-    if (!generatedPdfBase64) return;
-    const byteCharacters = atob(generatedPdfBase64);
-    const byteNumbers = new Array(byteCharacters.length);
-    for (let i = 0; i < byteCharacters.length; i++) {
-      byteNumbers[i] = byteCharacters.charCodeAt(i);
-    }
-    const byteArray = new Uint8Array(byteNumbers);
-    const blob = new Blob([byteArray], { type: 'application/pdf' });
-    
-    const fileUrl = URL.createObjectURL(blob);
+    if (!pdfBlobUrl) return;
     const downloadLink = document.createElement('a');
-    downloadLink.href = fileUrl;
+    downloadLink.href = pdfBlobUrl;
     // Slugify title for filesave
     const titleSlug = (contentStructure?.title || prompt || 'webox-ai-booklet')
       .toLowerCase()
@@ -186,7 +231,6 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
-    URL.revokeObjectURL(fileUrl);
   };
 
   // Supported PDF languages for generation (OpenAI/Cerebras can write in any of these natively)
@@ -253,38 +297,221 @@ export default function AiPdfGenerator({ currentLanguage }: AiPdfGeneratorProps)
             </button>
           </div>
 
-          {/* Interactive visual booklet card chapter map */}
+          {/* WeBox AI Live Document Book Simulator (Mobile-friendly Flawless Previewer) */}
           {contentStructure?.pages && (
-            <div className="bg-neutral-50 border border-neutral-100 rounded-2xl p-6 space-y-4">
-              <div className="flex items-center gap-2 border-b border-neutral-100 pb-3">
-                <Layers className="w-4 h-4 text-indigo-600" />
-                <h4 className="text-sm font-bold text-neutral-900 tracking-tight">
-                  {getUiString('structureTitle')}
-                </h4>
+            <div className="space-y-4 border border-neutral-200/60 p-5 sm:p-6 rounded-2xl bg-white shadow-sm" id="webox-live-document-book-simulator">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-neutral-100 pb-4">
+                <div className="flex items-center gap-2">
+                  <span className="p-2 bg-indigo-50 text-indigo-600 rounded-xl">
+                    <FileText className="w-5 h-5 animate-pulse" />
+                  </span>
+                  <div className="text-left">
+                    <h4 className="text-sm font-black text-neutral-850 tracking-tight font-sans">
+                      {currentLanguage === 'TR' ? '📖 Canlı Yapay Zeka Belge Okuyucu & Simülatör' : currentLanguage === 'AZ' ? '📖 Canlı Süni İntellekt Sənəd Oxuyucusu' : '📖 Live AI Document Reader & Book Simulator'}
+                    </h4>
+                    <p className="text-[10px] sm:text-xs text-neutral-400 font-sans">
+                      {currentLanguage === 'TR' ? 'Yapay zekanın çıkardığı orijinal dökümanı sayfa sayfa visual olarak inceleyin:' : currentLanguage === 'AZ' ? 'Süni intellektin hazırladığı orijinal sənədi səhifə-səhifə oxuyun:' : 'Explore the full booklet page-by-page as designed:'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Page Selector Tabs */}
+                <div className="flex flex-wrap gap-1 bg-neutral-100 p-1 rounded-xl">
+                  <button
+                    onClick={() => setActivePreviewPageIdx(0)}
+                    className={`px-3 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+                      activePreviewPageIdx === 0
+                        ? 'bg-neutral-900 text-white shadow-sm'
+                        : 'text-neutral-500 hover:text-neutral-800'
+                    }`}
+                  >
+                    {currentLanguage === 'TR' ? 'Kapak' : currentLanguage === 'AZ' ? 'Qapaq' : 'Cover'}
+                  </button>
+                  {contentStructure.pages.map((_: any, pIdx: number) => (
+                    <button
+                      key={pIdx}
+                      onClick={() => setActivePreviewPageIdx(pIdx + 1)}
+                      className={`px-2.5 py-1.5 text-[10px] font-bold rounded-lg transition-all ${
+                        activePreviewPageIdx === pIdx + 1
+                          ? 'bg-neutral-900 text-white shadow-sm'
+                          : 'text-neutral-500 hover:text-neutral-800'
+                      }`}
+                    >
+                      {pIdx + 1}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {contentStructure.pages.map((p: any, idx: number) => (
-                  <div key={idx} className="bg-white p-4 rounded-xl border border-neutral-200/50 space-y-2 relative shadow-sm hover:border-neutral-300 transition-colors">
-                    <span className="absolute top-3 right-3 text-[10px] font-mono font-bold text-neutral-400 bg-neutral-100 border border-neutral-100/50 px-2 py-0.5 rounded-full">
-                      Page {idx + 2}
-                    </span>
-                    <h5 className="font-bold text-sm text-neutral-900 max-w-[85%] leading-tight">
-                      {p.header || `Sayfa Bölümü ${idx + 1}`}
-                    </h5>
-                    {p.paragraphs?.[0] && (
-                      <p className="text-xs text-neutral-500 line-clamp-2 leading-relaxed font-sans">
-                        {p.paragraphs[0]}
-                      </p>
-                    )}
-                    {p.imageSearchQuery && (
-                      <div className="pt-2 border-t border-neutral-50 text-[10px] font-semibold text-neutral-400 flex items-center gap-1 italic">
-                        <span>Görsel Kelimesi:</span>
-                        <span className="font-mono text-neutral-600 not-italic">"{p.imageSearchQuery}"</span>
+              {/* Physical Document Book Canvas */}
+              <div className="bg-neutral-50 border border-neutral-200/50 rounded-2xl p-4 sm:p-8 min-h-[440px] flex flex-col justify-between shadow-inner relative overflow-hidden text-left">
+                
+                {/* Visual binder spiral line for notebook aesthetics */}
+                <div className="absolute top-0 bottom-0 left-[20px] sm:left-[35px] w-0.5 border-r border-neutral-200/60 border-dashed z-10" />
+
+                <div className="pl-6 sm:pl-12 space-y-5">
+                  {activePreviewPageIdx === 0 ? (
+                    /* RENDER COVER PAGE */
+                    <div className="space-y-6 py-4 font-sans animate-fade-in text-center">
+                      <div className="border border-neutral-300 rounded-xl p-6 sm:p-10 space-y-8 bg-white min-h-[340px] flex flex-col justify-between shadow-sm relative overflow-hidden leading-tight">
+                        
+                        {/* Elegant minimalist corners */}
+                        <div className="absolute top-3 left-3 w-4 h-4 border-t border-l border-neutral-200" />
+                        <div className="absolute top-3 right-3 w-4 h-4 border-t border-r border-neutral-200" />
+                        <div className="absolute bottom-3 left-3 w-4 h-4 border-b border-l border-neutral-200" />
+                        <div className="absolute bottom-3 right-3 w-4 h-4 border-b border-r border-neutral-200" />
+
+                        <div className="space-y-4 pt-4">
+                          <span className="text-[9px] font-mono font-bold tracking-widest text-neutral-400 uppercase bg-neutral-50 px-2.5 py-0.5 border border-neutral-100 rounded">
+                            WEBOX ORIGINAL DOCUMENT
+                          </span>
+                          <h3 className="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight leading-tight uppercase max-w-md mx-auto">
+                            {contentStructure.title || 'WEBOX GENERATED PDF'}
+                          </h3>
+                          <div className="w-12 h-1 bg-neutral-900 mx-auto rounded" />
+                          {contentStructure.subtitle && (
+                            <p className="text-xs sm:text-sm text-neutral-500 font-medium italic max-w-sm mx-auto leading-relaxed">
+                              "{contentStructure.subtitle}"
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="border-t border-neutral-100 pt-6 space-y-2 text-center">
+                          <p className="text-[9px] font-bold text-emerald-600 uppercase tracking-widest font-mono">
+                            {currentLanguage === 'TR' ? 'ÖZEL AKADEMİK ÇALIŞMA RAPORU' : currentLanguage === 'AZ' ? 'XÜSUSİ AKADEMİK SƏNƏD' : 'OFFICIAL ACADEMIC REPORT'}
+                          </p>
+                          <div className="text-[10px] text-neutral-400 font-semibold space-y-0.5">
+                            <p className="font-mono">{new Date().toLocaleDateString(currentLanguage === 'TR' ? 'tr-TR' : currentLanguage === 'AZ' ? 'az-AZ' : 'en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                          </div>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+                    </div>
+                  ) : (
+                    /* RENDER INNER PAGES */
+                    <div className="space-y-5 animate-fade-in text-left font-sans">
+                      {(() => {
+                        const sPage = contentStructure.pages[activePreviewPageIdx - 1];
+                        if (!sPage) return null;
+                        return (
+                          <div className="space-y-4">
+                            {/* Page header title with number */}
+                            <div className="flex items-center justify-between border-b border-neutral-200/80 pb-2">
+                              <h4 className="text-sm sm:text-base font-black text-neutral-800 tracking-tight uppercase">
+                                {sPage.header || `Bölüm ${activePreviewPageIdx}`}
+                              </h4>
+                              <span className="text-[10px] font-mono font-bold text-neutral-400 shrink-0">
+                                {currentLanguage === 'TR' ? `SAYFA ${activePreviewPageIdx + 1}` : currentLanguage === 'AZ' ? `SƏHİFƏ ${activePreviewPageIdx + 1}` : `PAGE ${activePreviewPageIdx + 1}`}
+                              </span>
+                            </div>
+
+                            {/* Render download-source image elegantly if exists */}
+                            {sPage.imageUrl ? (
+                              <div className="relative border border-neutral-200 rounded-xl overflow-hidden bg-neutral-100 shadow-sm max-h-[220px]">
+                                <img
+                                  src={sPage.imageUrl}
+                                  alt={sPage.imageSearchQuery || 'Page graphic'}
+                                  className="w-full object-cover max-h-[210px] block"
+                                  referrerPolicy="no-referrer"
+                                />
+                                <div className="absolute bottom-2 left-2 bg-black/75 backdrop-blur-sm px-2.5 py-0.5 rounded text-[9px] font-medium text-white/90 italic">
+                                  {currentLanguage === 'TR' ? 'Arşiv Görseli:' : currentLanguage === 'AZ' ? 'Sənəd Şəkli:' : 'Document Image:'} "{sPage.imageSearchQuery || prompt}"
+                                </div>
+                              </div>
+                            ) : sPage.imageSearchQuery ? (
+                              <div className="border border-dashed border-neutral-200 rounded-xl p-4 bg-white text-center flex flex-col items-center justify-center space-y-1">
+                                <span className="text-[10px] text-neutral-400 uppercase font-bold tracking-wider font-mono">
+                                  {currentLanguage === 'TR' ? 'GÖRSEL ARANIYOR' : 'IMAGE QUERIED'}
+                                </span>
+                                <span className="text-xs text-neutral-500 italic">"{sPage.imageSearchQuery}"</span>
+                              </div>
+                            ) : null}
+
+                            {/* Booklet Prose paragraphs */}
+                            <div className="space-y-3 pt-1">
+                              {sPage.paragraphs && sPage.paragraphs.map((para: string, pIdx: number) => (
+                                <p key={pIdx} className="text-xs sm:text-sm text-neutral-600 leading-relaxed text-justify">
+                                  {para}
+                                </p>
+                              ))}
+                            </div>
+
+                            {/* Clean Bullet metrics checkmarks list */}
+                            {sPage.bulletPoints && sPage.bulletPoints.length > 0 && (
+                              <div className="space-y-2 pt-2 border-t border-neutral-100 max-w-xl">
+                                {sPage.bulletPoints.map((bullet: string, bIdx: number) => (
+                                  <div key={bIdx} className="flex items-start gap-2 text-xs text-neutral-700 font-medium">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
+                                    <p className="leading-normal font-sans text-neutral-600">{bullet}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+                {/* Flip control action pagination bar */}
+                <div className="pl-6 sm:pl-12 pt-6 border-t border-neutral-200/50 mt-6 flex justify-between items-center select-none font-sans">
+                  <button
+                    type="button"
+                    disabled={activePreviewPageIdx === 0}
+                    onClick={() => setActivePreviewPageIdx(prev => prev - 1)}
+                    className="px-3.5 py-1.5 bg-white hover:bg-neutral-100 disabled:opacity-40 border border-neutral-200 text-neutral-600 rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95"
+                  >
+                    ← {currentLanguage === 'TR' ? 'Önceki' : currentLanguage === 'AZ' ? 'Əvvəlki' : 'Prev'}
+                  </button>
+
+                  <span className="text-[10px] font-mono font-bold text-neutral-400">
+                    {activePreviewPageIdx + 1} / {contentStructure.pages.length + 1}
+                  </span>
+
+                  <button
+                    type="button"
+                    disabled={activePreviewPageIdx === contentStructure.pages.length}
+                    onClick={() => setActivePreviewPageIdx(prev => prev + 1)}
+                    className="px-3.5 py-1.5 bg-neutral-900 hover:bg-neutral-800 disabled:opacity-40 text-white rounded-lg text-xs font-bold transition-all flex items-center gap-1 active:scale-95 shadow-sm"
+                  >
+                    {currentLanguage === 'TR' ? 'Sonraki' : currentLanguage === 'AZ' ? 'Növbəti' : 'Next'} →
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* Direct Live PDF Preview Frame Viewer */}
+          {pdfBlobUrl && (
+            <div className="space-y-3" id="live-pdf-canvas-preview-container">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-xs font-bold text-neutral-550 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <FileText className="w-4 h-4 text-indigo-500" />
+                  {currentLanguage === 'TR' ? 'Masaüstü Canlı PDF Önizleme' : currentLanguage === 'AZ' ? 'Masaüstü Canlı PDF Önizləməsi' : 'Desktop Live PDF Viewer'}
+                </span>
+                <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-bold uppercase font-mono border border-emerald-100 animate-pulse inline-block self-start sm:self-auto">
+                  {currentLanguage === 'TR' ? 'OTOMATİK İNDİRİLDİ' : currentLanguage === 'AZ' ? 'AVTOMATİK YÜKLƏNDİ' : 'AUTO-DOWNLOADED'}
+                </span>
+              </div>
+
+              {/* Responsive Iframe Notice for Phones */}
+              <div className="bg-amber-50 border border-amber-100 rounded-xl p-3 text-[11px] text-amber-850 font-sans leading-relaxed text-left">
+                <strong>💡 {currentLanguage === 'TR' ? 'Mobil Cihaz Bildirimi:' : currentLanguage === 'AZ' ? 'Mobil Cihaz Bildirişi:' : 'Mobile Device Notice:'}</strong>{' '}
+                {currentLanguage === 'TR' 
+                  ? 'Mobil tarayıcılarda (Android Chrome / iOS Safari) PDF dosyalarının iframe içinde gösterilmesi kısıtlanmıştır (bu yüzden tarayıcınız yukarıdaki "Aç" butonuyla boş kalabilir). Belgeniz telefonunuza otomatik indirilmiştir. Kaydedilen PDF dökümanını cep telefonunuzun yerleşik dosya yöneticisinden dilediğiniz an açıp okuyabilirsiniz!'
+                  : currentLanguage === 'AZ'
+                    ? 'Mobil brauzerlərdə (Android Chrome / iOS Safari) PDF sənədlərinin iframe daxilində göstərilməsi məhdudlaşdırılır (buna görə cihazınızda "Aç" düyməsi ilə boş görünə bilər). Sənədiniz artıq telefonunuza avtomatik yüklənib! Yüklənmiş PDF sənədini telefonunuzun fayl menecerindən istənilən vaxt açıb oxuya bilərsiniz.'
+                    : 'Mobile browsers restrict direct PDF rendering inside iframes. Your physical booklet has been auto-saved to your device. You can open and read the actual downloaded PDF instantly using any document viewer in your phone!'}
+              </div>
+
+              <div className="hidden lg:block border border-neutral-200/80 rounded-2xl overflow-hidden bg-neutral-50 p-2 shadow-sm">
+                <iframe
+                  src={`${pdfBlobUrl}#toolbar=0&navpanes=0`}
+                  title="WeBox Live PDF Preview Sheet"
+                  className="w-full h-[600px] rounded-xl bg-white border-0 shadow-inner"
+                  referrerPolicy="no-referrer"
+                />
               </div>
             </div>
           )}
